@@ -30,7 +30,7 @@ public class CheckoutAndPricingSecurityTests : IAsyncLifetime
         var b2bClient = _factory.CreateCookieClient();
         await _factory.RegisterUserAsync(b2bClient, $"pendingb2b_{Guid.NewGuid():N}@contoh.id", "PartnerB2B");
 
-        // Add 12 pairs (1 Kodi) while IsB2BApproved == false
+        // Add 12 pairs (1 Lusin) while IsB2BApproved == false
         var addRes = await b2bClient.PostAsync("/api/cart/add",
             new StringContent("{\"variantId\":1,\"quantity\":12}", Encoding.UTF8, "application/json"));
         addRes.EnsureSuccessStatusCode();

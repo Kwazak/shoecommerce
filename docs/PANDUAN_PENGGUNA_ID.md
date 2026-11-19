@@ -44,29 +44,29 @@ Kami membuka kemitraan bagi pemilik toko sepatu daerah, warung, koperasi, maupun
 ### Cara Mendaftar & Menunggu Persetujuan Admin Pabrik
 1. Klik **Daftar Mitra/Pembeli** di pojok kanan atas dan pilih **Mitra Toko / Grosir (B2B)**.
 2. Lengkapi data diri beserta kolom toko yang wajib diisi: **Nama Toko**, **Kota/Kabupaten**, dan **Alamat Lengkap Toko**.
-3. Setelah mendaftar, Anda akan melihat cap pemberitahuan: **"Pendaftaran Mitra Berhasil — Menunggu Verifikasi Admin Pabrik untuk Aktivasi Harga Kodian & Tempo"**.
-4. Begitu Admin Pabrik menyetujui pendaftaran Anda, akun Anda otomatis mendapatkan **tarif potongan kodian** dan fasilitas **Tempo Mitra 14 Hari**.
+3. Setelah mendaftar, Anda akan melihat cap pemberitahuan: **"Pendaftaran Mitra Berhasil — Menunggu Verifikasi Admin Pabrik untuk Aktivasi Harga Lusinan & Tempo"**.
+4. Begitu Admin Pabrik menyetujui pendaftaran Anda, akun Anda otomatis mendapatkan **tarif potongan lusinan** dan fasilitas **Tempo Mitra 14 Hari**.
 
-### Cara Kerja Diskon Bertingkat Kodian
+### Cara Kerja Diskon Bertingkat Lusinan
 Potongan harga dihitung otomatis di **Laci Kasir** berdasarkan **total pasang** dalam satu pesanan (boleh campur model, warna, dan ukuran):
 
 | Golongan Partai | Total Pasang | Potongan Harga Pabrik |
 | --- | --- | --- |
-| **½ Kodi** | 6 – 11 pasang | **Diskon 15%** |
-| **1 Kodi** | 12 – 23 pasang | **Diskon 25%** |
-| **≥ 2 Kodi** | 24 pasang ke atas | **Diskon 35%** |
+| **½ Lusin** | 6 – 11 pasang | **Diskon 15%** |
+| **1 Lusin** | 12 – 23 pasang | **Diskon 25%** |
+| **≥ 2 Lusin** | 24 pasang ke atas | **Diskon 35%** |
 
-*Tips:* Sebelum disetujui atau sebelum mendaftar, Anda dapat mengaktifkan sakelar **"Simulasi Harga Kodian B2B"** di katalog atau halaman produk untuk melihat perkiraan harga grosir.
+*Tips:* Sebelum disetujui atau sebelum mendaftar, Anda dapat mengaktifkan sakelar **"Simulasi Harga Lusinan B2B"** di katalog atau halaman produk untuk melihat perkiraan harga grosir.
 
 ### Memesan Cepat dengan Matriks Seri Ukuran & Paket Usaha
 - **Matriks Buku Kas Seri Ukuran (38–44):**
   Jika akun B2B Anda sudah aktif (atau mode simulasi aktif), gulir ke bawah pada halaman rincian produk untuk melihat tabel matriks warna × ukuran.
   - Klik **"Isi 1 Seri Standar (39–43)"** untuk mengisi otomatis 1 pasang di ukuran `39, 40, 41, 42, 43`, atau ketik jumlah sesuai kebutuhan toko.
   - Klik **"Masukkan Semua ke Keranjang Grosir"** untuk memasukkan seluruh seri sekaligus.
-- **Paket Usaha Pemula (½ Kodi – 1 Kodi):**
-  Di Beranda dan Katalog Pabrik tersedia brosur paket siap jual (seperti *Paket Buka Lapak ½ Kodi Sandal Harian* dan *Paket Proyek 6 Pasang Boot Karet*). Klik **"Pesan Paket Usaha"** untuk langsung memasukkannya ke keranjang.
+- **Paket Usaha Pemula (½ Lusin – 1 Lusin):**
+  Di Beranda dan Katalog Pabrik tersedia brosur paket siap jual (seperti *Paket Buka Lapak ½ Lusin Sandal Harian* dan *Paket Proyek 6 Pasang Boot Karet*). Klik **"Pesan Paket Usaha"** untuk langsung memasukkannya ke keranjang.
 - **Ekspedisi Kargo Truk & Tempo 14 Hari:**
-  Saat checkout, Mitra B2B terverifikasi dapat memilih **Ekspedisi Kargo Truk** (ongkir hemat untuk partai kodian) dan **Tempo Mitra B2B (14 Hari)** (pesanan langsung diproses & dikirim, pelunasan maksimal 14 hari sejak tanggal faktur).
+  Saat checkout, Mitra B2B terverifikasi dapat memilih **Ekspedisi Kargo Truk** (ongkir hemat untuk partai lusinan) dan **Tempo Mitra B2B (14 Hari)** (pesanan langsung diproses & dikirim, pelunasan maksimal 14 hari sejak tanggal faktur).
 
 ---
 

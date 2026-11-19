@@ -30,9 +30,9 @@ This guide documents the architectural rules, core domain workflows, external in
 ### A. Pricing Engine (`Services/PricingEngineService.cs`)
 - Active discount tiers are stored in `WholesaleTierSettings` and cached in `HybridCache` under key `"wholesale-tiers:active"` (tag `"wholesale-tiers"`).
 - Default seeded tiers:
-  - `6–11` pairs (`½ Kodi`): `15% OFF`
-  - `12–23` pairs (`1 Kodi`): `25% OFF`
-  - `24+` pairs (`≥ 2 Kodi`): `35% OFF`
+  - `6–11` pairs (`½ Lusin`): `15% OFF`
+  - `12–23` pairs (`1 Lusin`): `25% OFF`
+  - `24+` pairs (`≥ 2 Lusin`): `35% OFF`
 - Unit prices are rounded to the nearest `Rp 100` (`Math.Round(raw / 100m, MidpointRounding.AwayFromZero) * 100m`).
 - **Role Enforcement:** Only `PartnerB2B` accounts with `IsB2BApproved == true` receive wholesale discounts and `TempoB2B` (14-day credit) at checkout. Unauthenticated users and `CustomerB2C` users can preview wholesale pricing via `?SimulateB2B=true` on `/Products` and `/Products/Details/{id}`, but authoritative checkout totals are always recomputed server-side inside `OrderFulfillmentService.PlaceOrderAsync`.
 

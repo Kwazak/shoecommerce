@@ -9,7 +9,7 @@
         OrderStatus.Dibatalkan => ("PABRIK KARYA JAYA", "DIBATALKAN", "STOK DIKEMBALIKAN", "#C85A32"),
         OrderStatus.Kedaluwarsa => ("BATAS 24 JAM HABIS", "KEDALUWARSA", "STOK DILEPASKAN", "#C85A32"),
         _ when o.PaidAt.HasValue => ("CAP KASIR RESMI", "LUNAS", FormatHelper.WibDateShort(o.PaidAt.Value), "#2E4A3E"),
-        _ when o.PaymentMethod == PaymentMethod.TempoB2B => ("MITRA KODIAN", "TEMPO 14 HARI", o.IsTempoNearDue ? "JATUH TEMPO" : "DIPROSES PABRIK", o.IsTempoNearDue ? "#C85A32" : "#4A2E1B"),
+        _ when o.PaymentMethod == PaymentMethod.TempoB2B => ("MITRA LUSINAN", "TEMPO 14 HARI", o.IsTempoNearDue ? "JATUH TEMPO" : "DIPROSES PABRIK", o.IsTempoNearDue ? "#C85A32" : "#4A2E1B"),
         _ when o.PaymentMethod == PaymentMethod.COD => ("KURIR PABRIK", "BAYAR COD", "DIPROSES PABRIK", "#4A2E1B"),
         _ => ("KASIR PABRIK", "BELUM LUNAS", "MENUNGGU BAYAR", "#C85A32")
     };
@@ -85,7 +85,7 @@
                 <h1 class="font-display font-extrabold text-3xl text-ink">KARYA JAYA 1978</h1>
                 <p class="font-typewriter text-xs text-ink/80 mt-1">
                     Jl. Raya Cibaduyut No. 78, Bandung — Jawa Barat<br />
-                    Telp. Pabrik: (022) 540-1978 • Bagian Penjualan Eceran &amp; Kodian
+                    Telp. Pabrik: (022) 540-1978 • Bagian Penjualan Eceran &amp; Lusinan
                 </p>
             </div>
 

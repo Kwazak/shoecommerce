@@ -45,18 +45,18 @@ We partner with regional shoe shops, market stalls, and project suppliers across
 1. Click **Daftar Mitra/Pembeli** and select **Mitra Toko / Grosir (B2B)**.
 2. Fill in your personal details along with your **Shop Name (*Nama Toko*)**, **City/Regency (*Kota/Kabupaten*)**, and **Full Shop Address (*Alamat Lengkap Toko*)**.
 3. Once registered, your account shows a **"Menunggu Verifikasi Admin Pabrik"** (Awaiting Factory Admin Verification) notice.
-4. As soon as our Factory Admin approves your shop, your account automatically unlocks **wholesale kodi discounts** and **14-Day Credit Terms**.
+4. As soon as our Factory Admin approves your shop, your account automatically unlocks **wholesale lusin discounts** and **14-Day Credit Terms**.
 
-### How Tiered Kodi Discounts Work
+### How Tiered Lusin Discounts Work
 Discounts are calculated automatically in your **Laci Kasir** based on the **total number of pairs** in your order (you can mix models, colors, and sizes):
 
 | Wholesale Tier | Total Pairs | Automatic Factory Discount |
 | --- | --- | --- |
-| **½ Kodi** | 6 – 11 pairs | **15% OFF** |
-| **1 Kodi** | 12 – 23 pairs | **25% OFF** |
-| **≥ 2 Kodi** | 24+ pairs | **35% OFF** |
+| **½ Lusin** | 6 – 11 pairs | **15% OFF** |
+| **1 Lusin** | 12 – 23 pairs | **25% OFF** |
+| **≥ 2 Lusin** | 24+ pairs | **35% OFF** |
 
-*Tip:* Not yet approved, or just browsing? Turn on **"Simulasi Harga Kodian B2B"** on the catalog or product page to preview wholesale prices right away.
+*Tip:* Not yet approved, or just browsing? Turn on **"Simulasi Harga Lusinan B2B"** on the catalog or product page to preview wholesale prices right away.
 
 ### Ordering Fast with the Size-Series Matrix & Starter Bundles
 - **Size-Series Ledger Matrix (*Matriks Buku Kas Seri Ukuran*):**
@@ -64,7 +64,7 @@ Discounts are calculated automatically in your **Laci Kasir** based on the **tot
   - Click **"Isi 1 Seri Standar (39–43)"** to fill 1 pair in each standard size (`39, 40, 41, 42, 43`) in one click, or type your own quantities.
   - Click **"Masukkan Semua ke Keranjang Grosir"** to add the entire series at once.
 - **Starter Business Bundles (*Paket Usaha Pemula*):**
-  On the Home and Catalog pages, browse ready-made bundles (such as *Paket Buka Lapak ½ Kodi Sandal Harian* or *Paket Proyek 6 Pasang Boot Karet*) and click **"Pesan Paket Usaha"** to add the full bundle in one click.
+  On the Home and Catalog pages, browse ready-made bundles (such as *Paket Buka Lapak ½ Lusin Sandal Harian* or *Paket Proyek 6 Pasang Boot Karet*) and click **"Pesan Paket Usaha"** to add the full bundle in one click.
 - **Bulk Shipping & 14-Day Credit:**
   At checkout, approved B2B partners can choose **Ekspedisi Kargo Truk** (economical bulk truck freight) and **Tempo Mitra B2B (14 Hari)** (goods ship immediately; settle payment within 14 days of the invoice date).
 

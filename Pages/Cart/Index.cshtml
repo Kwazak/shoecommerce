@@ -32,7 +32,7 @@
         <div class="ink-box bg-cardstock p-5 mb-6">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
                 <div class="font-typewriter text-xs font-bold uppercase text-bottle">
-                    @(Model.Summary.IsWholesalePricingActive ? "PROGRES TINGKAT KODIAN MITRA B2B" : "INFO HARGA KODIAN PABRIK")
+                    @(Model.Summary.IsWholesalePricingActive ? "PROGRES TINGKAT LUSINAN MITRA B2B" : "INFO HARGA LUSINAN PABRIK")
                 </div>
                 <div class="font-typewriter text-xs font-bold">
                     Total saat ini: <span class="text-terracotta text-sm">@Model.Summary.TotalPairs Pasang</span>
@@ -136,7 +136,7 @@
                     @if (Model.Summary.DiscountAmount > 0)
                     {
                         <div class="flex justify-between text-bottle font-bold">
-                            <span>Diskon Kodian (@Model.Summary.DiscountPercent.ToString("0")%)</span>
+                            <span>Diskon Lusinan (@Model.Summary.DiscountPercent.ToString("0")%)</span>
                             <span class="font-typewriter">- @FormatHelper.Rupiah(Model.Summary.DiscountAmount)</span>
                         </div>
                     }

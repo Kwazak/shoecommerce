@@ -131,7 +131,7 @@ public sealed class OrderFulfillmentService
             return new PlaceOrderResult
             {
                 Success = false,
-                ErrorMessage = "Ekspedisi Kargo Truk khusus untuk pesanan partai kodian (minimal 6 pasang) atau Mitra B2B."
+                ErrorMessage = "Ekspedisi Kargo Truk khusus untuk pesanan partai lusinan (minimal 6 pasang) atau Mitra B2B."
             };
         }
 

@@ -55,7 +55,7 @@ public class DiscountsModel : PageModel
     {
         if (!ModelState.IsValid)
         {
-            TempData["ToastError"] = "Periksa kembali nilai aturan diskon kodian Anda.";
+            TempData["ToastError"] = "Periksa kembali nilai aturan diskon lusinan Anda.";
             return Page();
         }
 
@@ -70,7 +70,7 @@ public class DiscountsModel : PageModel
         });
 
         await _pricing.UpdateTiersAsync(mapped);
-        TempData["ToastSuccess"] = "Aturan potongan harga kodian B2B berhasil diperbarui.";
+        TempData["ToastSuccess"] = "Aturan potongan harga lusinan B2B berhasil diperbarui.";
         return RedirectToPage();
     }
 }

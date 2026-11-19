@@ -63,7 +63,7 @@ public static class EnumExtensions
     public static string ToIndonesianLabel(this ShippingMethod method) => method switch
     {
         ShippingMethod.RegulerKurir => "Kurir Reguler (Paket Eceran)",
-        ShippingMethod.EkspedisiKargoTruk => "Ekspedisi Kargo Truk (Partai Kodian B2B)",
+        ShippingMethod.EkspedisiKargoTruk => "Ekspedisi Kargo Truk (Partai Lusinan B2B)",
         _ => method.ToString()
     };
 

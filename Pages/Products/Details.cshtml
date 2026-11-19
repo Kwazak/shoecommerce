@@ -37,7 +37,7 @@
         {
             <a asp-page="/Products/Details" asp-route-id="@Model.Product.Id" asp-route-SimulateB2B="@(!Model.SimulateB2B)"
                class="btn-press @(Model.SimulateB2B ? "btn-bottle" : "btn-paper") px-3.5 py-1.5 text-xs font-typewriter uppercase">
-                @(Model.SimulateB2B ? "★ Mode Simulasi Harga Kodian B2B: AKTIF" : "Simulasi Harga Kodian B2B")
+                @(Model.SimulateB2B ? "★ Mode Simulasi Harga Lusinan B2B: AKTIF" : "Simulasi Harga Lusinan B2B")
             </a>
         }
     </div>
@@ -121,7 +121,7 @@
                         <div class="font-typewriter font-extrabold text-2xl text-terracotta">@FormatHelper.Rupiah(Model.Product.RetailPrice) <span class="text-xs font-normal text-ink">/ pasang</span></div>
                     </div>
                     <div class="text-right">
-                        <div class="font-typewriter text-[11px] uppercase font-bold text-bottle">Tarif Mitra B2B (≥ 2 Kodi)</div>
+                        <div class="font-typewriter text-[11px] uppercase font-bold text-bottle">Tarif Mitra B2B (≥ 2 Lusin)</div>
                         @{
                             var bestTier = Model.ActiveTiers.OrderByDescending(t => t.DiscountPercent).FirstOrDefault();
                             var bestPrice = bestTier is not null
@@ -185,7 +185,7 @@
             <div class="ink-box bg-cardstock p-5">
                 <div class="flex items-center justify-between border-b-2 border-ink pb-2 mb-3">
                     <div>
-                        <div class="font-typewriter text-[11px] font-bold uppercase text-bottle">KALKULATOR KODIAN MITRA B2B</div>
+                        <div class="font-typewriter text-[11px] font-bold uppercase text-bottle">KALKULATOR LUSINAN MITRA B2B</div>
                         <h2 class="font-display font-extrabold text-xl">Hitung Penghematan Partai Grosir</h2>
                     </div>
                     <span class="font-typewriter text-xs font-bold bg-newsprint border border-ink px-2 py-0.5">SIMULASI</span>
@@ -230,7 +230,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-ink pb-4 mb-5">
                     <div>
                         <div class="font-typewriter text-xs font-bold uppercase tracking-widest text-bottle">
-                            PESANAN PARTAI GROSIR • @(Model.IsApprovedB2B ? "MITRA B2B TERVERIFIKASI" : "MODE SIMULASI KODIAN")
+                            PESANAN PARTAI GROSIR • @(Model.IsApprovedB2B ? "MITRA B2B TERVERIFIKASI" : "MODE SIMULASI LUSINAN")
                         </div>
                         <h2 class="font-display font-extrabold text-2xl sm:text-3xl">Matriks Buku Kas Seri Ukuran (38–44)</h2>
                         <p class="text-xs text-ink/80 mt-1">

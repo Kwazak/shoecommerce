@@ -28,15 +28,15 @@
             }
 
             <div>
-                <div class="font-typewriter text-[11px] font-bold uppercase text-bottle">Simulasi Harga Kodian B2B</div>
+                <div class="font-typewriter text-[11px] font-bold uppercase text-bottle">Simulasi Harga Lusinan B2B</div>
                 <div class="text-xs text-ink/75">
                     @(Model.IsApprovedB2B ? "Akun Anda Mitra B2B Aktif" : "Pratinjau tarif grosir toko")
                 </div>
             </div>
             <select name="SimulationPairs" class="input-ledger !w-auto text-xs font-typewriter font-bold py-1.5" onchange="this.form.submit()">
-                <option value="6" selected="@(Model.Filter.SimulationPairs == 6)">½ Kodi (6 Pasang)</option>
-                <option value="12" selected="@(Model.Filter.SimulationPairs == 12)">1 Kodi (12 Pasang)</option>
-                <option value="24" selected="@(Model.Filter.SimulationPairs >= 24)">≥ 2 Kodi (24+ Pasang)</option>
+                <option value="6" selected="@(Model.Filter.SimulationPairs == 6)">½ Lusin (6 Pasang)</option>
+                <option value="12" selected="@(Model.Filter.SimulationPairs == 12)">1 Lusin (12 Pasang)</option>
+                <option value="24" selected="@(Model.Filter.SimulationPairs >= 24)">≥ 2 Lusin (24+ Pasang)</option>
             </select>
             <label class="inline-flex items-center gap-2 cursor-pointer font-typewriter text-xs font-bold">
                 <input type="checkbox" name="SimulateB2B" value="true" checked="@(Model.Filter.SimulateB2B || Model.IsApprovedB2B)" onchange="this.form.submit()" class="w-4 h-4 accent-[#2E4A3E]" />
@@ -128,7 +128,7 @@
                 <span>MENAMPILKAN @Model.Products.Count MODEL ALAS KAKI</span>
                 @if (Model.Filter.SimulateB2B && !Model.IsApprovedB2B)
                 {
-                    <span class="bg-bottle text-newsprint px-2.5 py-1 border border-ink">MODE SIMULASI KODIAN (@Model.Filter.SimulationPairs PSG)</span>
+                    <span class="bg-bottle text-newsprint px-2.5 py-1 border border-ink">MODE SIMULASI LUSINAN (@Model.Filter.SimulationPairs PSG)</span>
                 }
             </div>
 

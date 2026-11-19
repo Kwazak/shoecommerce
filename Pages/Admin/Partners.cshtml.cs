@@ -25,7 +25,7 @@ public class PartnersModel : PageModel
     {
         var ok = await _auth.SetB2BApprovalAsync(userId, approved: true);
         TempData[ok ? "ToastSuccess" : "ToastError"] = ok
-            ? "Mitra Toko B2B disetujui! Harga kodian & Tempo 14 Hari kini aktif."
+            ? "Mitra Toko B2B disetujui! Harga lusinan & Tempo 14 Hari kini aktif."
             : "Mitra tidak ditemukan.";
         return RedirectToPage();
     }

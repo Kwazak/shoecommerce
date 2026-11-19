@@ -8,7 +8,7 @@ A production-grade **.NET 10 ASP.NET Core Razor Pages** e-commerce platform for 
 
 - **Dual-Channel Commerce:**
   - **B2C Retail (`CustomerB2C` & Guest Checkout):** Direct-from-factory pricing (`Rp 65.000` – `Rp 260.000`), regular courier shipping, Midtrans Snap online payments, and Cash on Delivery (`COD`).
-  - **B2B Wholesale (`PartnerB2B`):** Self-service shop registration with Admin verification (`IsB2BApproved`), automatic tiered *kodian* discounts (`6–11`, `12–23`, `24+` pairs), a multi-variant Size-Series Accounting Ledger Matrix (`38–44`), Land Freight (*Ekspedisi Kargo Truk*), and **Tempo Mitra B2B (14 Hari)** credit terms.
+  - **B2B Wholesale (`PartnerB2B`):** Self-service shop registration with Admin verification (`IsB2BApproved`), automatic tiered *lusinan* discounts (`6–11`, `12–23`, `24+` pairs), a multi-variant Size-Series Accounting Ledger Matrix (`38–44`), Land Freight (*Ekspedisi Kargo Truk*), and **Tempo Mitra B2B (14 Hari)** credit terms.
 - **1970s–1980s Indonesian Print-Era Aesthetic:**
   - **Zero Bootstrap / Zero jQuery / Zero Generic SaaS UI:** Built with Tailwind CSS (CDN with custom vintage tokens), custom print-era CSS (`wwwroot/css/vintage.css`), and modular Vanilla JavaScript (`wwwroot/js/storefront.js`, `wwwroot/js/admin-charts.js`).
   - **Visual Tokens:** Aged newsprint (`#F4EFE6`), warm cardstock (`#EAE0D0`), saddle leather (`#4A2E1B`), terracotta orange (`#C85A32`), bottle green (`#2E4A3E`), and press ink (`#231F20`), paired with `Fraunces`, `Courier Prime`, and `Plus Jakarta Sans`.
@@ -86,7 +86,7 @@ KaryaJayaFootwear/
 ├── Services/
 │   ├── AuthService.cs                  # Registration, PasswordHasher<User> login, cookie claims, B2B approval
 │   ├── CatalogService.cs               # HybridCache-backed catalog/bundles & Admin product/variant CRUD
-│   ├── PricingEngineService.cs         # HybridCache-backed kodi tiers & shipping cost calculation
+│   ├── PricingEngineService.cs         # HybridCache-backed lusin tiers & shipping cost calculation
 │   ├── CartService.cs                  # Cookie cart, single/batch/bundle additions, live AvailableStock checks
 │   ├── OrderFulfillmentService.cs      # Atomic order creation, stock reservation, lifecycle checks, warehouse manifest/dispatch
 │   ├── OrderLifecycleBackgroundService.cs # 15-min PeriodicTimer worker for >24h expiration & B2B Tempo flagging

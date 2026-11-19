@@ -20,7 +20,7 @@ window.renderKaryaJayaAdminCharts = function (payload) {
             borderWidth: 2
           },
           {
-            label: 'Penjualan Kodian (B2B)',
+            label: 'Penjualan Lusinan (B2B)',
             data: payload.trendB2B,
             backgroundColor: '#2E4A3E',
             borderColor: '#231F20',

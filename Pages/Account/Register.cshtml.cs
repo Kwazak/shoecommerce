@@ -94,7 +94,7 @@ public class RegisterModel : PageModel
         if (res.User.Role == UserRole.PartnerB2B)
         {
             TempData["PartnerPendingNotice"] =
-                "Pendaftaran Mitra Berhasil — Menunggu Verifikasi Admin Pabrik untuk Aktivasi Harga Kodian & Tempo";
+                "Pendaftaran Mitra Berhasil — Menunggu Verifikasi Admin Pabrik untuk Aktivasi Harga Lusinan & Tempo";
             return RedirectToPage("/Account/Orders");
         }
 

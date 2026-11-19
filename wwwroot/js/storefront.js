@@ -95,7 +95,7 @@
       tierBannerHtml = `
         <div class="border-2 border-[#231F20] bg-[#EAE0D0] p-3 mb-4">
           <div class="flex items-center justify-between font-typewriter text-[11px] font-bold uppercase mb-1">
-            <span>Status Harga Kodian</span>
+            <span>Status Harga Lusinan</span>
             <span>${data.totalPairs} Pasang</span>
           </div>
           <div class="w-full h-3 bg-[#F4EFE6] border border-[#231F20] overflow-hidden mb-1.5">
@@ -153,7 +153,7 @@
         </div>
         ${data.discountAmount > 0 ? `
           <div class="flex justify-between text-[#2E4A3E] font-bold">
-            <span>Potongan Kodian (${data.discountPercent}%)</span>
+            <span>Potongan Lusinan (${data.discountPercent}%)</span>
             <span class="font-typewriter">- ${formatRp(data.discountAmount)}</span>
           </div>
         ` : ''}

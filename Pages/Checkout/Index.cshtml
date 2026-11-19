@@ -110,13 +110,13 @@
                     <input type="radio" asp-for="Input.ShippingMethod" value="@ShippingMethod.EkspedisiKargoTruk" data-ship-cost="@((long)Model.CargoShippingCost)" disabled="@(!canUseCargo)" class="mt-1 accent-[#2E4A3E]" />
                     <div class="flex-1">
                         <div class="flex justify-between font-bold text-sm">
-                            <span>Ekspedisi Kargo Truk (Partai Kodian B2B)</span>
+                            <span>Ekspedisi Kargo Truk (Partai Lusinan B2B)</span>
                             <span class="font-typewriter text-bottle">@FormatHelper.Rupiah(Model.CargoShippingCost)</span>
                         </div>
                         <p class="text-xs text-ink/75 mt-0.5">
                             @if (canUseCargo)
                             {
-                                <span>Tarif khusus muatan karung/dus kodian via ekspedisi darat antarkota.</span>
+                                <span>Tarif khusus muatan karung/dus lusinan via ekspedisi darat antarkota.</span>
                             }
                             else
                             {
@@ -193,7 +193,7 @@
                 @if (Model.Cart.DiscountAmount > 0)
                 {
                     <div class="flex justify-between text-bottle font-bold">
-                        <span>Potongan Kodian (@Model.Cart.DiscountPercent.ToString("0")%)</span>
+                        <span>Potongan Lusinan (@Model.Cart.DiscountPercent.ToString("0")%)</span>
                         <span class="font-typewriter">- @FormatHelper.Rupiah(Model.Cart.DiscountAmount)</span>
                     </div>
                 }

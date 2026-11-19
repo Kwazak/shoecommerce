@@ -97,7 +97,7 @@ public sealed class PricingEngineService
         {
             var firstTier = ordered.FirstOrDefault();
             banner = firstTier is not null
-                ? $"Daftar sebagai Mitra Toko B2B untuk menikmati potongan harga kodian mulai {firstTier.DiscountPercent:0}% (min. {firstTier.MinPairs} pasang)."
+                ? $"Daftar sebagai Mitra Toko B2B untuk menikmati potongan harga lusinan mulai {firstTier.DiscountPercent:0}% (min. {firstTier.MinPairs} pasang)."
                 : "Daftar sebagai Mitra Toko B2B untuk harga grosir langsung dari pabrik.";
         }
         else if (currentTier is null && nextTier is not null)
