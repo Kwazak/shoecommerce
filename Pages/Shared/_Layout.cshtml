@@ -1,0 +1,190 @@
+@using System.Security.Claims
+@inject CartService CartSvc
+@{
+    var isAuth = User.Identity?.IsAuthenticated == true;
+    var isAdmin = User.IsInRole(nameof(UserRole.Admin));
+    var isPartner = User.IsInRole(nameof(UserRole.PartnerB2B));
+    var displayName = User.FindFirstValue(ClaimTypes.Name) ?? "Tamu";
+    var isApprovedB2B = await CartSvc.IsUserApprovedB2BAsync(User);
+}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — Pabrik Sepatu Karya Jaya 1978</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        newsprint: '#F4EFE6',
+                        cardstock: '#EAE0D0',
+                        leather: '#4A2E1B',
+                        terracotta: '#C85A32',
+                        bottle: '#2E4A3E',
+                        ink: '#231F20'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="~/css/vintage.css" asp-append-version="true" />
+</head>
+<body class="min-h-screen flex flex-col bg-newsprint text-ink">
+    <!-- Subtle Aged Paper Grain Overlay (feTurbulence, opacity 0.025) -->
+    <svg class="no-print paper-grain-overlay" aria-hidden="true">
+        <filter id="kj-paper-grain">
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#kj-paper-grain)" />
+    </svg>
+
+    <!-- Top Factory Ticker -->
+    <div class="no-print bg-leather text-newsprint border-b-2 border-ink py-1.5 px-4">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs font-typewriter tracking-wide">
+            <span>PABRIK ALAS KAKI KARYA JAYA • EST. 1978 • CIBADUYUT, BANDUNG</span>
+            <span class="flex items-center gap-3">
+                <span>KUALITAS ASLI BUATAN PABRIK</span>
+                <span class="hidden sm:inline">•</span>
+                <span class="hidden sm:inline text-cardstock">HARGA ECERAN &amp; KODIAN B2B</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Main Print Masthead Navbar -->
+    <header class="no-print bg-cardstock border-b-2 border-ink sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <a asp-page="/Index" class="flex items-center gap-3 group">
+                <div class="w-11 h-11 bg-leather text-newsprint border-2 border-ink shadow-[2px_2px_0px_#231F20] flex items-center justify-center font-display font-extrabold text-xl">
+                    KJ
+                </div>
+                <div>
+                    <div class="font-display font-extrabold text-lg sm:text-xl leading-none tracking-tight group-hover:text-terracotta transition-colors">
+                        KARYA JAYA 1978
+                    </div>
+                    <div class="font-typewriter text-[11px] text-leather font-bold uppercase tracking-wider mt-0.5">
+                        Sepatu • Sandal • Boot Nusantara
+                    </div>
+                </div>
+            </a>
+
+            <nav class="flex flex-wrap items-center gap-2 sm:gap-3 text-sm font-bold">
+                <a asp-page="/Index" class="px-3 py-1.5 hover:bg-newsprint border border-transparent hover:border-ink transition-colors">Beranda</a>
+                <a asp-page="/Products/Index" class="px-3 py-1.5 hover:bg-newsprint border border-transparent hover:border-ink transition-colors">Katalog Pabrik</a>
+                <a asp-page="/Products/Index" asp-route-SimulateB2B="true" class="px-3 py-1.5 bg-newsprint border border-ink text-bottle hover:bg-bottle hover:text-newsprint transition-colors font-typewriter text-xs uppercase">
+                    Harga Kodian
+                </a>
+
+                @if (isAuth)
+                {
+                    <partial name="_UserProfileMenu" />
+                }
+                else
+                {
+                    <a asp-page="/Account/Login" class="px-3 py-1.5 hover:bg-newsprint border border-ink text-xs font-typewriter uppercase">Masuk</a>
+                    <a asp-page="/Account/Register" class="btn-press btn-bottle px-3 py-1.5 text-xs uppercase font-typewriter">Daftar Mitra/Pembeli</a>
+                }
+
+                @if (!isAdmin)
+                {
+                    <button type="button" data-open-cart class="btn-press btn-leather px-3.5 py-1.5 text-xs font-typewriter uppercase">
+                        <span>Laci Kasir</span>
+                        <span id="nav-cart-count" class="bg-terracotta text-newsprint px-1.5 py-0.5 border border-ink text-[11px] leading-none">0</span>
+                    </button>
+                }
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1">
+        @RenderBody()
+    </main>
+
+    <!-- Vintage Print Footer -->
+    <footer class="no-print bg-leather text-newsprint border-t-4 border-ink mt-16">
+        <div class="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <div class="font-display font-extrabold text-xl mb-2">PABRIK SEPATU KARYA JAYA</div>
+                <p class="text-sm text-cardstock/90 leading-relaxed mb-3">
+                    Melayani kebutuhan alas kaki rakyat dan toko sepatu daerah sejak 1978. Sol karet vulkanisir padat, jahitan rangkap, langsung dari bangku pengrajin tanpa perantara.
+                </p>
+                <div class="font-typewriter text-xs text-cardstock border border-cardstock/40 inline-block px-2.5 py-1">
+                    IZIN INDUSTRI NO. 78/IND-BDG/1978
+                </div>
+            </div>
+            <div>
+                <div class="font-typewriter text-xs uppercase tracking-widest text-cardstock mb-3 font-bold">Navigasi Katalog</div>
+                <ul class="space-y-2 text-sm">
+                    <li><a asp-page="/Products/Index" asp-route-Category="Sepatu" class="hover:underline">Sepatu Kerja, Sekolah &amp; Kanvas</a></li>
+                    <li><a asp-page="/Products/Index" asp-route-Category="Sandal" class="hover:underline">Sandal Karet &amp; Kulit Harian</a></li>
+                    <li><a asp-page="/Products/Index" asp-route-Category="Boot" class="hover:underline">Boot Lapangan, Proyek &amp; Kebun</a></li>
+                    <li><a asp-page="/Account/Register" class="hover:underline text-cardstock font-semibold">Pendaftaran Mitra Toko Kodian (B2B)</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="font-typewriter text-xs uppercase tracking-widest text-cardstock mb-3 font-bold">Alamat Pabrik &amp; Gudang</div>
+                <p class="text-sm text-cardstock/90 leading-relaxed">
+                    Jl. Raya Cibaduyut No. 78, Bandung, Jawa Barat<br />
+                    Jam Kerja Gudang: Senin–Sabtu, 08.00–17.00 WIB<br />
+                    Ekspedisi: Kurir Reguler &amp; Kargo Truk Partai Kodian
+                </p>
+            </div>
+        </div>
+        <div class="border-t border-cardstock/20 py-3 px-4 text-center font-typewriter text-xs text-cardstock/80">
+            © 1978–@DateTime.Now.Year PABRIK ALAS KAKI KARYA JAYA • KUALITAS ASLI BUATAN PABRIK
+        </div>
+    </footer>
+
+    <!-- Slide-Out Laci Kasir (Cash Register Cart Drawer) -->
+    <div id="laci-kasir-backdrop" data-close-cart class="hidden fixed inset-0 bg-ink/60 z-40"></div>
+    <aside id="laci-kasir-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-cardstock border-l-4 border-ink z-50 transform translate-x-full transition-transform duration-200 flex flex-col">
+        <div class="bg-leather text-newsprint px-5 py-4 border-b-2 border-ink flex items-center justify-between">
+            <div>
+                <div class="font-typewriter text-[11px] uppercase tracking-widest text-cardstock">Daftar Nota Sementara</div>
+                <h2 class="font-display font-extrabold text-xl">Laci Kasir Pabrik</h2>
+            </div>
+            <button type="button" data-close-cart class="btn-press btn-paper px-2.5 py-1 text-xs font-typewriter uppercase">
+                Tutup [X]
+            </button>
+        </div>
+        <div id="laci-items-wrap" class="flex-1 overflow-y-auto p-4"></div>
+        <div id="laci-summary-wrap" class="bg-newsprint border-t-2 border-ink p-4"></div>
+    </aside>
+
+    <!-- Rubber-Stamp Toast Notification Container -->
+    <div id="vintage-toast-container" class="no-print fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
+
+    <script src="~/js/storefront.js" asp-append-version="true"></script>
+    @if (TempData["ToastSuccess"] is string okMsg)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', () => window.showStampToast(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(okMsg)), 'success'));
+        </script>
+    }
+    @if (TempData["ToastError"] is string errMsg)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', () => window.showStampToast(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(errMsg)), 'error'));
+        </script>
+    }
+    @if (TempData["ToastInfo"] is string infoMsg)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', () => window.showStampToast(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(infoMsg)), 'info'));
+        </script>
+    }
+    @if (TempData["OpenCartDrawer"] as string == "true")
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', () => window.openCartDrawer());
+        </script>
+    }
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

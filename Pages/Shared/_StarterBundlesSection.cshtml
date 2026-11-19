@@ -1,0 +1,53 @@
+@model IReadOnlyList<StarterBundle>
+@if (Model is not null && Model.Count > 0)
+{
+    <section class="max-w-7xl mx-auto px-4 py-10">
+        <div class="flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink pb-4 mb-6">
+            <div>
+                <div class="font-typewriter text-xs font-bold uppercase tracking-widest text-bottle">
+                    BROSUR PAKET USAHA PEMULA (½ KODI – 1 KODI)
+                </div>
+                <h2 class="font-display font-extrabold text-3xl">Paket Usaha Siap Jual &amp; Proyek</h2>
+                <p class="text-sm text-ink/80 mt-1">
+                    Langsung masuk keranjang dengan seri ukuran terlaris—cocok untuk warung, toko sepatu baru, dan pengadaan proyek.
+                </p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            @foreach (var bundle in Model)
+            {
+                <article class="ink-box bg-cardstock flex flex-col justify-between">
+                    <div>
+                        <div class="halftone-badge bg-newsprint border-b-2 border-ink px-4 py-2 flex items-center justify-between">
+                            <span class="font-typewriter text-[11px] font-bold bg-terracotta text-newsprint px-2 py-0.5 border border-ink">
+                                @bundle.BadgeText
+                            </span>
+                            <span class="font-typewriter text-xs font-bold text-leather">@bundle.TotalPairs PASANG</span>
+                        </div>
+                        <div class="p-4 bg-newsprint border-b-2 border-ink">
+                            @Html.Raw(RetroSvgHelper.RenderFootwearSvg(bundle.SvgIllustrationKey, "#4A2E1B", "w-full h-32"))
+                        </div>
+                        <div class="p-4 space-y-2">
+                            <h3 class="font-display font-extrabold text-xl leading-snug">@bundle.Name</h3>
+                            <p class="text-xs text-ink/85 leading-relaxed">@bundle.Description</p>
+                            <div class="ticket-stub p-2.5 font-typewriter text-[11px] text-leather font-bold">
+                                Isi Paket: @bundle.IncludedItemsSummary
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-newsprint border-t-2 border-ink flex items-center justify-between gap-3">
+                        <div>
+                            <div class="font-typewriter text-[11px] line-through text-ink/50">@FormatHelper.Rupiah(bundle.RetailComparePrice)</div>
+                            <div class="font-typewriter font-extrabold text-lg text-bottle">@FormatHelper.Rupiah(bundle.BundlePrice)</div>
+                        </div>
+                        <button type="button" onclick="window.addBundleToCartAjax(@bundle.Id)"
+                                class="btn-press btn-terracotta px-3.5 py-2 text-xs font-typewriter uppercase">
+                            Pesan Paket Usaha
+                        </button>
+                    </div>
+                </article>
+            }
+        </div>
+    </section>
+}

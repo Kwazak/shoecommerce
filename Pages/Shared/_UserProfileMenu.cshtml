@@ -1,0 +1,68 @@
+@using System.Security.Claims
+@if (User.Identity?.IsAuthenticated == true)
+{
+    var fullName = User.FindFirstValue(ClaimTypes.Name) ?? "Pengguna";
+    var isAdmin = User.IsInRole(nameof(UserRole.Admin));
+    var isB2B = User.IsInRole(nameof(UserRole.PartnerB2B));
+
+    (string roleBadge, string badgeClass) = isAdmin
+        ? ("ADMIN", "bg-[#C85A32] text-[#F4EFE6]")
+        : isB2B
+            ? ("MITRA B2B", "bg-[#2E4A3E] text-[#F4EFE6]")
+            : ("ECERAN", "bg-[#4A2E1B] text-[#F4EFE6]");
+
+    <div class="relative inline-block text-left" data-profile-dropdown>
+        <button type="button"
+                data-profile-toggle
+                aria-expanded="false"
+                aria-haspopup="menu"
+                class="btn-press btn-paper px-3 py-1.5 text-xs font-bold flex items-center gap-2 border-2 border-[#231F20]">
+            <span class="truncate max-w-[140px]">@fullName</span>
+            <span class="font-typewriter text-[10px] font-bold px-1.5 py-0.5 border border-[#231F20] @badgeClass">
+                @roleBadge
+            </span>
+            <span class="font-typewriter text-[10px]" aria-hidden="true">▼</span>
+        </button>
+
+        <div data-profile-menu
+             role="menu"
+             class="hidden absolute right-0 mt-2 w-60 bg-[#F4EFE6] text-[#231F20] border-2 border-[#231F20] shadow-[4px_4px_0px_#231F20] z-50 p-2 space-y-1">
+            <div class="px-2.5 py-1.5 border-b border-dashed border-[#231F20] mb-1">
+                <div class="font-typewriter text-[10px] uppercase text-[#4A2E1B] font-bold">Masuk Sebagai</div>
+                <div class="text-xs font-bold truncate">@fullName</div>
+            </div>
+
+            @if (isAdmin)
+            {
+                <a asp-page="/Admin/Index" role="menuitem"
+                   class="block px-3 py-2 text-xs font-bold border border-transparent hover:border-[#231F20] hover:bg-[#EAE0D0]">
+                    Panel Admin Pabrik
+                </a>
+                <a asp-page="/Admin/WarehouseScan" role="menuitem"
+                   class="block px-3 py-2 text-xs font-bold border border-transparent hover:border-[#231F20] hover:bg-[#EAE0D0]">
+                    Scan Gudang
+                </a>
+            }
+            else
+            {
+                <a asp-page="/Account/Orders" role="menuitem"
+                   class="block px-3 py-2 text-xs font-bold border border-transparent hover:border-[#231F20] hover:bg-[#EAE0D0]">
+                    Riwayat Pesanan &amp; Faktur
+                </a>
+                <a asp-page="/Account/Profile" role="menuitem"
+                   class="block px-3 py-2 text-xs font-bold border border-transparent hover:border-[#231F20] hover:bg-[#EAE0D0]">
+                    Profil Akun
+                </a>
+            }
+
+            <div class="pt-1 border-t border-dashed border-[#231F20]">
+                <form method="post" asp-page="/Account/Logout">
+                    <button type="submit" role="menuitem"
+                            class="btn-press w-full py-2 px-3 text-xs font-typewriter uppercase bg-[#C85A32] text-[#F4EFE6] hover:bg-[#b44d28]">
+                        Keluar Akun (Logout)
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+}

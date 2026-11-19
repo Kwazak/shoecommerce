@@ -1,0 +1,94 @@
+@page
+@model KaryaJayaFootwear.Pages.Admin.PartnersModel
+@{
+    ViewData["Title"] = "Verifikasi Mitra B2B";
+}
+
+<div class="space-y-6">
+    <div class="border-b-2 border-ink pb-4">
+        <div class="font-typewriter text-xs font-bold uppercase text-bottle">JARINGAN TOKO SEPATU DAERAH</div>
+        <h1 class="font-display font-extrabold text-3xl">Antrean Verifikasi Mitra Kodian (B2B)</h1>
+        <p class="text-sm text-ink/80 mt-1">
+            Mitra yang mendaftar melalui formulir publik memerlukan persetujuan Admin sebelum mendapatkan potongan kodian dan Tempo 14 Hari.
+        </p>
+    </div>
+
+    @if (Model.Partners.Count == 0)
+    {
+        <div class="ink-box bg-cardstock p-10 text-center">
+            <div class="font-display font-bold text-xl mb-1">Belum Ada Pendaftar Mitra Toko</div>
+            <p class="text-sm text-ink/80">
+                Pendaftar akun <strong>Mitra Toko / Grosir (B2B)</strong> dari halaman pendaftaran akan muncul di daftar ini.
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="ink-box bg-newsprint overflow-x-auto">
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th>Nama Toko &amp; Pemilik</th>
+                        <th>Kota / Kabupaten</th>
+                        <th>Kontak WA &amp; Email</th>
+                        <th>Tgl Daftar</th>
+                        <th>Status Kemitraan</th>
+                        <th>Keputusan Admin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.Partners)
+                    {
+                        <tr>
+                            <td>
+                                <div class="font-display font-bold text-base">@p.ShopName</div>
+                                <div class="text-xs text-ink/80">Pemilik: <strong>@p.FullName</strong></div>
+                                <div class="text-[11px] text-ink/70">@p.ShopAddress</div>
+                            </td>
+                            <td class="font-typewriter font-bold text-sm">@p.City</td>
+                            <td class="font-typewriter text-xs">
+                                <div>@p.PhoneNumber</div>
+                                <div class="text-ink/75">@p.Email</div>
+                            </td>
+                            <td class="font-typewriter text-xs">@FormatHelper.WibDate(p.CreatedAt)</td>
+                            <td>
+                                @if (p.IsB2BApproved)
+                                {
+                                    <span class="font-typewriter text-xs font-bold bg-bottle text-newsprint px-2.5 py-1 border border-ink">
+                                        AKTIF • DISETUJUI
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="font-typewriter text-xs font-bold bg-terracotta text-newsprint px-2.5 py-1 border border-ink">
+                                        MENUNGGU ACC
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                @if (!p.IsB2BApproved)
+                                {
+                                    <form method="post" asp-page-handler="Approve">
+                                        <input type="hidden" name="userId" value="@p.Id" />
+                                        <button type="submit" class="btn-press btn-bottle px-3.5 py-1.5 text-xs font-typewriter uppercase">
+                                            Setujui Mitra B2B
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form method="post" asp-page-handler="Deactivate">
+                                        <input type="hidden" name="userId" value="@p.Id" />
+                                        <button type="submit" class="btn-press btn-paper px-3.5 py-1.5 text-xs font-typewriter uppercase text-terracotta">
+                                            Nonaktifkan
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

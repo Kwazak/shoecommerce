@@ -1,0 +1,17 @@
+@model (string? ImageUrl, string SvgKey, string ColorHex, string AltText, string HeightClass)
+@if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+{
+    <div class="vintage-photo-frame w-full @Model.HeightClass overflow-hidden relative">
+        <img src="@Model.ImageUrl"
+             alt="@Model.AltText"
+             class="vintage-photo-img w-full h-full block"
+             onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
+        <div class="hidden w-full h-full">
+            @Html.Raw(RetroSvgHelper.RenderFootwearSvg(Model.SvgKey, Model.ColorHex, "w-full h-full"))
+        </div>
+    </div>
+}
+else
+{
+    @Html.Raw(RetroSvgHelper.RenderFootwearSvg(Model.SvgKey, Model.ColorHex, $"w-full {Model.HeightClass}"))
+}

@@ -1,0 +1,272 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Beranda Pabrik Alas Kaki Nusantara";
+}
+
+<!-- 1970s-1980s Indonesian Print Poster Hero -->
+<section class="border-b-4 border-ink bg-cardstock">
+    <div class="max-w-7xl mx-auto px-4 py-10 lg:py-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-7 space-y-5">
+            <div class="inline-flex items-center gap-2 bg-newsprint border-2 border-ink px-3 py-1 font-typewriter text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0px_#231F20]">
+                <span class="w-2.5 h-2.5 bg-terracotta inline-block border border-ink"></span>
+                <span>EDISI PABRIK CIBADUYUT • SEJAK 1978</span>
+            </div>
+
+            <h1 class="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl leading-[1.06] text-ink">
+                Kualitas Asli <span class="text-terracotta underline decoration-4 underline-offset-4">Buatan Pabrik</span>, Tahan Banting Segala Medan.
+            </h1>
+
+            <p class="text-base sm:text-lg text-ink/85 max-w-2xl leading-relaxed">
+                Langsung dari bangku pengrajin sepatu, sandal, dan boot di Bandung ke kaki Anda—tanpa rantai tengkulak. Harga jujur harian untuk pembeli eceran maupun partai kodian toko sepatu daerah.
+            </p>
+
+            <div class="flex flex-wrap items-center gap-4 pt-2">
+                <a asp-page="/Products/Index" class="btn-press btn-leather px-6 py-3.5 text-sm uppercase font-typewriter">
+                    Belanja Eceran →
+                </a>
+                @if (!Model.IsApprovedB2B)
+                {
+                    <a asp-page="/Account/Register" asp-route-type="PartnerB2B" class="btn-press btn-terracotta px-6 py-3.5 text-sm uppercase font-typewriter">
+                        Daftar Mitra Kodian B2B
+                    </a>
+                }
+                else
+                {
+                    <a asp-page="/Products/Index" class="btn-press btn-bottle px-6 py-3.5 text-sm uppercase font-typewriter">
+                        ★ Buka Harga Kodian Mitra
+                    </a>
+                }
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 pt-4 max-w-xl">
+                <div class="bg-newsprint border-2 border-ink p-3">
+                    <div class="font-typewriter text-xs text-leather font-bold">HARGA MULAI</div>
+                    <div class="font-display font-extrabold text-lg">Rp 65.000</div>
+                </div>
+                <div class="bg-newsprint border-2 border-ink p-3">
+                    <div class="font-typewriter text-xs text-bottle font-bold">DISKON KODIAN</div>
+                    <div class="font-display font-extrabold text-lg">s/d 35% OFF</div>
+                </div>
+                <div class="bg-newsprint border-2 border-ink p-3">
+                    <div class="font-typewriter text-xs text-terracotta font-bold">UKURAN LOKAL</div>
+                    <div class="font-display font-extrabold text-lg">No. 38 – 44</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Poster Visual Plate -->
+        <div class="lg:col-span-5">
+            <div class="ink-box-lg bg-newsprint p-5 relative">
+                <div class="double-ruled p-4 bg-newsprint">
+                    <div class="flex items-center justify-between border-b-2 border-ink pb-2 mb-3">
+                        <span class="font-typewriter text-xs font-bold uppercase">KATALOG PERAGA NO. 01</span>
+                        <span class="font-typewriter text-xs bg-bottle text-newsprint px-2 py-0.5">SOL KARET ALAM</span>
+                    </div>
+
+                    <div class="bg-cardstock border-2 border-ink p-3 mb-3">
+                        @Html.Raw(RetroSvgHelper.RenderFootwearSvg("boot-kulit-lapangan", "#4A2E1B", "w-full h-48"))
+                    </div>
+
+                    <div class="flex items-end justify-between gap-2">
+                        <div>
+                            <div class="font-typewriter text-[11px] text-leather font-bold">PRODUK ANDALAN 1982</div>
+                            <div class="font-display font-extrabold text-lg">Boot Kulit Lapangan Garut</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-typewriter text-xs text-ink/70">Eceran Pabrik</div>
+                            <div class="font-typewriter font-bold text-lg text-terracotta">Rp 260.000</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic SVG Rubber Stamp -->
+                <div class="hidden sm:block absolute -top-6 -right-4">
+                    @Html.Raw(RetroSvgHelper.RenderRubberStampSvg("KARYA JAYA", "ASLI PABRIK", "BANDUNG • 1978", "#C85A32", 9))
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category Directory -->
+<section class="max-w-7xl mx-auto px-4 py-12">
+    <div class="flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink pb-4 mb-7">
+        <div>
+            <div class="font-typewriter text-xs font-bold uppercase tracking-widest text-terracotta">PEMBAGIAN LINI PRODUKSI</div>
+            <h2 class="font-display font-extrabold text-3xl">Direktori Kategori Alas Kaki</h2>
+        </div>
+        <a asp-page="/Products/Index" class="font-typewriter text-sm font-bold underline hover:text-terracotta">
+            Lihat Semua 14 Model →
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <a asp-page="/Products/Index" asp-route-Category="Sepatu" class="ink-box bg-cardstock p-5 hover:-translate-y-1 transition-transform block">
+            <div class="flex items-center justify-between font-typewriter text-xs font-bold mb-3">
+                <span class="bg-leather text-newsprint px-2 py-0.5">LINI 01</span>
+                <span>@Model.CategoryCounts.GetValueOrDefault(FootwearCategory.Sepatu) MODEL TERSEDIA</span>
+            </div>
+            <div class="bg-newsprint border-2 border-ink p-2 mb-4">
+                @Html.Raw(RetroSvgHelper.RenderFootwearSvg("sepatu-kanvas", "#231F20", "w-full h-32"))
+            </div>
+            <h3 class="font-display font-extrabold text-2xl mb-1">Sepatu Pabrik</h3>
+            <p class="text-sm text-ink/80">Kanvas vulkanisir, sepatu sekolah, pantofel kulit mandor, hingga kets olahraga retro.</p>
+        </a>
+
+        <a asp-page="/Products/Index" asp-route-Category="Sandal" class="ink-box bg-cardstock p-5 hover:-translate-y-1 transition-transform block">
+            <div class="flex items-center justify-between font-typewriter text-xs font-bold mb-3">
+                <span class="bg-bottle text-newsprint px-2 py-0.5">LINI 02</span>
+                <span>@Model.CategoryCounts.GetValueOrDefault(FootwearCategory.Sandal) MODEL TERSEDIA</span>
+            </div>
+            <div class="bg-newsprint border-2 border-ink p-2 mb-4">
+                @Html.Raw(RetroSvgHelper.RenderFootwearSvg("sandal-kulit-tali", "#4A2E1B", "w-full h-32"))
+            </div>
+            <h3 class="font-display font-extrabold text-2xl mb-1">Sandal Rakyat</h3>
+            <p class="text-sm text-ink/80">Sandal jepit karet tebal, selop anti-licin, sandal kulit tali dua, hingga sandal gunung.</p>
+        </a>
+
+        <a asp-page="/Products/Index" asp-route-Category="Boot" class="ink-box bg-cardstock p-5 hover:-translate-y-1 transition-transform block">
+            <div class="flex items-center justify-between font-typewriter text-xs font-bold mb-3">
+                <span class="bg-terracotta text-newsprint px-2 py-0.5">LINI 03</span>
+                <span>@Model.CategoryCounts.GetValueOrDefault(FootwearCategory.Boot) MODEL TERSEDIA</span>
+            </div>
+            <div class="bg-newsprint border-2 border-ink p-2 mb-4">
+                @Html.Raw(RetroSvgHelper.RenderFootwearSvg("boot-kulit-lapangan", "#2E4A3E", "w-full h-32"))
+            </div>
+            <h3 class="font-display font-extrabold text-2xl mb-1">Boot Kerja &amp; Medan</h3>
+            <p class="text-sm text-ink/80">Boot kulit lapangan jahit keliling, boot karet sawah kedap air, &amp; boot pekerja gudang.</p>
+        </a>
+    </div>
+</section>
+
+<!-- Brand Story & Material Craftsmanship -->
+<section class="bg-leather text-newsprint border-y-4 border-ink py-12">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-6 space-y-4">
+            <div class="font-typewriter text-xs uppercase tracking-widest text-cardstock">WARISAN PENGRAJIN LOKAL SEJAK 1978</div>
+            <h2 class="font-display font-extrabold text-3xl sm:text-4xl">Bukan Sepatu Sekali Pakai. Dibuat untuk Kerja Keras Bertahun-Tahun.</h2>
+            <p class="text-cardstock/90 leading-relaxed">
+                Berawal dari empat mesin press uap sederhana di Cibaduyut pada tahun 1978, Pabrik Karya Jaya menjaga pakem lama: karet alam murni tanpa campuran plastik rapuh, benang nilon rangkap, dan cetakan kaki Nusantara yang lega.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div class="border-2 border-cardstock p-3 bg-ink/30">
+                    <div class="font-typewriter text-xs text-terracotta font-bold">01. SOL VULKANISIR</div>
+                    <div class="text-xs mt-1 text-cardstock">Dipress panas 140°C agar sol karet menyatu erat dengan kanvas.</div>
+                </div>
+                <div class="border-2 border-cardstock p-3 bg-ink/30">
+                    <div class="font-typewriter text-xs text-terracotta font-bold">02. JAHITAN RANGKAP</div>
+                    <div class="text-xs mt-1 text-cardstock">Penguatan jahit pinggir pada titik tekukan jari &amp; tumit.</div>
+                </div>
+                <div class="border-2 border-cardstock p-3 bg-ink/30">
+                    <div class="font-typewriter text-xs text-terracotta font-bold">03. HARGA PABRIK</div>
+                    <div class="text-xs mt-1 text-cardstock">Tanpa margin distributor besar—hemat hingga 35% bagi mitra toko.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live B2B Wholesale Tiers Table -->
+        <div class="lg:col-span-6">
+            <div class="bg-newsprint text-ink ink-box p-6">
+                <div class="flex items-center justify-between border-b-2 border-ink pb-3 mb-4">
+                    <div>
+                        <div class="font-typewriter text-xs font-bold uppercase text-bottle">PROGRAM KEMITRAAN TOKO DAERAH</div>
+                        <h3 class="font-display font-extrabold text-2xl">Daftar Potongan Harga Kodian (B2B)</h3>
+                    </div>
+                    <span class="font-typewriter text-xs font-bold border-2 border-ink px-2 py-1 bg-cardstock">1 KODI = 20 PSG</span>
+                </div>
+
+                <table class="ledger-table mb-4">
+                    <thead>
+                        <tr>
+                            <th>Golongan Partai</th>
+                            <th>Jumlah Pesanan</th>
+                            <th>Potongan Pabrik</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var tier in Model.ActiveTiers)
+                        {
+                            <tr>
+                                <td class="font-bold">@tier.TierName</td>
+                                <td class="font-typewriter">
+                                    @(tier.MaxPairs.HasValue ? $"{tier.MinPairs} – {tier.MaxPairs} Pasang" : $"≥ {tier.MinPairs} Pasang")
+                                </td>
+                                <td class="font-typewriter font-bold text-bottle">@tier.DiscountPercent.ToString("0")% OFF</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                    <span class="text-xs font-semibold text-ink/80">Tersedia fasilitas <strong>Tempo Mitra 14 Hari</strong> &amp; Ekspedisi Kargo Truk.</span>
+                    <a asp-page="/Account/Register" asp-route-type="PartnerB2B" class="btn-press btn-bottle px-4 py-2 text-xs font-typewriter uppercase">
+                        Ajukan Mitra Toko →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Bestsellers -->
+<section class="max-w-7xl mx-auto px-4 py-12">
+    <div class="flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink pb-4 mb-7">
+        <div>
+            <div class="font-typewriter text-xs font-bold uppercase tracking-widest text-terracotta">PALING SERING DIPESAN TOKO &amp; KONSUMEN</div>
+            <h2 class="font-display font-extrabold text-3xl">Produk Unggulan Pabrik</h2>
+        </div>
+        <a asp-page="/Products/Index" class="btn-press btn-paper px-4 py-2 text-xs font-typewriter uppercase">
+            Buka Semua Katalog
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach (var item in Model.FeaturedProducts)
+        {
+            <article class="ink-box bg-newsprint flex flex-col justify-between">
+                <div>
+                    <div class="bg-cardstock border-b-2 border-ink px-4 py-2 flex items-center justify-between font-typewriter text-xs">
+                        <span class="font-bold">@item.Sku</span>
+                        <span class="px-2 py-0.5 border border-ink bg-newsprint font-bold uppercase">@item.Category.ToIndonesianLabel()</span>
+                    </div>
+                    <a asp-page="/Products/Details" asp-route-id="@item.Id" class="block p-4 bg-newsprint hover:bg-cardstock/50 transition-colors border-b-2 border-ink">
+                        <partial name="_ProductVisualFrame" model="@((item.ImageUrl, item.SvgIllustrationKey, item.PrimaryColorHex, item.Name, "h-40"))" />
+                    </a>
+                    <div class="p-4">
+                        <a asp-page="/Products/Details" asp-route-id="@item.Id" class="font-display font-extrabold text-xl hover:text-terracotta block mb-1">
+                            @item.Name
+                        </a>
+                        <p class="text-xs text-ink/80 mb-3 line-clamp-2">@item.ShortTagline</p>
+                        <div class="font-typewriter text-[11px] text-leather border-t border-dashed border-ink/40 pt-2">
+                            Atas: @item.UpperMaterial<br />
+                            Sol: @item.SoleMaterial
+                        </div>
+                    </div>
+                </div>
+                <div class="px-4 pb-4 pt-2 flex items-center justify-between gap-2 border-t-2 border-ink bg-cardstock">
+                    <div>
+                        @if (item.DisplayDiscountPercent > 0)
+                        {
+                            <div class="font-typewriter text-xs line-through text-ink/50">@FormatHelper.Rupiah(item.RetailPrice)</div>
+                            <div class="font-typewriter font-bold text-lg text-bottle">@FormatHelper.Rupiah(item.DisplayWholesalePrice)</div>
+                        }
+                        else
+                        {
+                            <div class="font-typewriter text-[11px] text-ink/70">Harga Eceran</div>
+                            <div class="font-typewriter font-bold text-lg text-terracotta">@FormatHelper.Rupiah(item.RetailPrice)</div>
+                        }
+                    </div>
+                    <a asp-page="/Products/Details" asp-route-id="@item.Id" class="btn-press btn-leather px-3.5 py-2 text-xs font-typewriter uppercase">
+                        Pilih Ukuran
+                    </a>
+                </div>
+            </article>
+        }
+    </div>
+</section>
+
+<!-- B2B Starter Bundles Brochure -->
+<div class="border-t-2 border-ink bg-newsprint">
+    <partial name="_StarterBundlesSection" model="Model.StarterBundles" />
+</div>

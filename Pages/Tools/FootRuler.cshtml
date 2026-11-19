@@ -1,0 +1,164 @@
+@page
+@model KaryaJayaFootwear.Pages.Tools.FootRulerModel
+@{
+    ViewData["Title"] = "Penggaris Ukur Kaki 1:1";
+    var sizeMarkers = new (int Size, double Cm, string Note)[]
+    {
+        (38, 24.0, "24,0 cm"),
+        (39, 24.5, "24,5 cm"),
+        (40, 25.5, "25,5 cm"),
+        (41, 26.0, "26,0 cm"),
+        (42, 27.0, "27,0 cm"),
+        (43, 27.5, "27,5 cm"),
+        (44, 28.5, "28,5 cm")
+    };
+}
+
+<style>
+    .ruler-track {
+        width: 110mm;
+        border: 2px solid #231F20;
+        background-color: #FBF7EE;
+        position: relative;
+    }
+
+    .scale-box-50mm {
+        width: 50mm;
+        height: 50mm;
+        border: 2px solid #231F20;
+        background-color: #EAE0D0;
+    }
+
+    @@media print {
+        @@page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
+        .no-print {
+            display: none !important;
+        }
+        .print-card {
+            box-shadow: none !important;
+            border: 2px solid #000000 !important;
+            margin: 0 !important;
+            width: 100% !important;
+        }
+    }
+</style>
+
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="no-print flex flex-wrap items-center justify-between gap-3 mb-6">
+        <a asp-page="/Products/Index" class="btn-press btn-paper px-4 py-2 text-xs font-typewriter uppercase">← Kembali ke Katalog</a>
+        <div class="flex items-center gap-3">
+            <span class="font-typewriter text-xs text-leather font-bold">Pastikan Skala Cetak = 100% (Actual Size / Jangan Fit-to-Page)</span>
+            <button type="button" onclick="window.print()" class="btn-press btn-leather px-5 py-2.5 text-xs font-typewriter uppercase">
+                Cetak Penggaris 1:1 (Print)
+            </button>
+        </div>
+    </div>
+
+    <article class="print-card ink-box-lg bg-newsprint p-6 sm:p-8">
+        <div class="double-ruled p-5 bg-newsprint">
+            <!-- Factory Card Header -->
+            <div class="flex flex-wrap items-start justify-between gap-4 border-b-2 border-ink pb-4 mb-5">
+                <div>
+                    <div class="font-typewriter text-xs font-bold uppercase text-terracotta">KARTU UKUR PABRIK KARYA JAYA • EST. 1978</div>
+                    <h1 class="font-display font-extrabold text-2xl sm:text-3xl">Penggaris Ukur Kaki Standar Indonesia (1:1)</h1>
+                    <p class="text-xs text-ink/80 mt-1">
+                        Tempelkan tumit Anda tepat pada garis <strong>NOL / TUMIT (23,0 cm referensi)</strong> di atas lantai rata, lalu lihat ujung jari kaki terpanjang.
+                    </p>
+                </div>
+                <div class="font-typewriter text-xs bg-cardstock border-2 border-ink px-3 py-1.5 font-bold">
+                    SKALA 1:1 (MILIMETER)
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                <!-- 50mm x 50mm Printer Scale Verification Square -->
+                <div class="md:col-span-5 space-y-4">
+                    <div class="font-typewriter text-xs font-bold uppercase text-leather">
+                        1. Kotak Uji Kalibrasi Printer
+                    </div>
+                    <div class="scale-box-50mm flex flex-col items-center justify-center text-center p-2">
+                        <div class="font-typewriter font-extrabold text-sm">50 mm × 50 mm</div>
+                        <div class="font-typewriter text-[11px] text-ink/80 mt-1">5,0 cm × 5,0 cm</div>
+                        <div class="font-typewriter text-[10px] text-terracotta font-bold mt-2">
+                            Ukur kotak ini dengan penggaris fisik setelah dicetak.
+                        </div>
+                    </div>
+
+                    <div class="ticket-stub p-3 text-xs space-y-1.5">
+                        <div class="font-typewriter font-bold uppercase text-bottle">Petunjuk Pengukuran:</div>
+                        <ol class="list-decimal list-inside space-y-1 text-ink/85">
+                            <li>Cetak halaman ini pada kertas A4 dengan pengaturan <strong>100% / Actual Size</strong>.</li>
+                            <li>Ukur kotak <strong>50mm × 50mm</strong> di atas untuk memastikan cetakan presisi.</li>
+                            <li>Lipat atau sejajarkan garis pangkal <strong>23,0 cm</strong> dengan tumit, lalu baca nomor sepatu pada ujung jari terpanjang.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Exact Millimeter-Calibrated Foot Ruler (23.0 cm to 28.5 cm = 55mm span, drawn at 2x? No, 1:1 exact mm!) -->
+                <div class="md:col-span-7 overflow-x-auto">
+                    <div class="font-typewriter text-xs font-bold uppercase text-leather mb-2">
+                        2. Mistar Kalibrasi Panjang Kaki (23,0 cm – 28,5 cm • Skala 1:1)
+                    </div>
+
+                    <div class="ruler-track p-3" style="width: 120mm;">
+                        <div class="font-typewriter text-[10px] font-bold uppercase text-terracotta mb-2">
+                            ← GARIS PANGKAL 23,0 cm (230 mm) — SEJAJARKAN DENGAN MISTAR 23 cm DARI TUMIT
+                        </div>
+
+                        <!-- Exact 55mm calibrated millimeter scale (230mm to 285mm) -->
+                        <div style="width: 55mm; height: 34mm; border-left: 3px solid #C85A32; border-right: 2px solid #231F20; border-bottom: 2px solid #231F20; position: relative; background: #F4EFE6;">
+                            @for (int mm = 0; mm <= 55; mm++)
+                            {
+                                bool isCm = mm % 10 == 0;
+                                bool isHalfCm = mm % 5 == 0 && !isCm;
+                                string tickH = isCm ? "12mm" : isHalfCm ? "8mm" : "4mm";
+                                <div style="position: absolute; left: @(mm)mm; bottom: 0; width: 0.35mm; height: @tickH; background: #231F20;"></div>
+                                @if (mm % 10 == 0)
+                                {
+                                    double cmLabel = 23.0 + (mm / 10.0);
+                                    <span style="position: absolute; left: @(mm)mm; top: 2mm; transform: translateX(-50%); font-family: 'Courier Prime', monospace; font-size: 8px; font-weight: 700;">
+                                        @cmLabel.ToString("0.0")
+                                    </span>
+                                }
+                            }
+
+                            @foreach (var m in sizeMarkers)
+                            {
+                                double offsetMm = (m.Cm - 23.0) * 10.0;
+                                <div style="position: absolute; left: @(offsetMm.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture))mm; top: 8mm; bottom: 0; border-left: 1.5px dashed #2E4A3E;">
+                                    <span style="position: absolute; top: 0; left: 1mm; background: #2E4A3E; color: #F4EFE6; font-family: 'Courier Prime', monospace; font-size: 8px; font-weight: 700; padding: 0 2px;">
+                                        @m.Size
+                                    </span>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Reference Size Table -->
+                        <table class="ledger-table text-xs mt-4">
+                            <thead>
+                                <tr>
+                                    <th>Nomor Sepatu</th>
+                                    <th>Panjang Insole</th>
+                                    <th>Rekomendasi Kaki</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var m in sizeMarkers)
+                                {
+                                    <tr>
+                                        <td class="font-typewriter font-bold text-leather">Ukuran @m.Size</td>
+                                        <td class="font-typewriter font-bold">@m.Note</td>
+                                        <td class="text-xs">Kaki @((m.Cm - 0.5).ToString("0.0")) – @m.Cm.ToString("0.0") cm</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+</div>

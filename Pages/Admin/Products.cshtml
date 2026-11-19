@@ -1,0 +1,324 @@
+@page
+@model KaryaJayaFootwear.Pages.Admin.ProductsModel
+@{
+    ViewData["Title"] = "Katalog & Stok Gudang";
+}
+
+<div class="space-y-6">
+    <div class="flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink pb-4">
+        <div>
+            <div class="font-typewriter text-xs font-bold uppercase text-terracotta">MANAJEMEN PRODUKSI &amp; GUDANG</div>
+            <h1 class="font-display font-extrabold text-3xl">Katalog Produk &amp; Stok Ukuran (38–44)</h1>
+        </div>
+        <button type="button" id="toggle-new-product-btn" class="btn-press btn-bottle px-4 py-2 text-xs font-typewriter uppercase">
+            + Tambah Model Baru
+        </button>
+    </div>
+
+    <!-- Create New Product Drawer/Card -->
+    <section id="new-product-panel" class="hidden ink-box bg-cardstock p-6">
+        <div class="font-typewriter text-xs font-bold uppercase text-leather border-b-2 border-ink pb-2 mb-4">
+            CATAT MODEL ALAS KAKI BARU (OTOMATIS MEMBUAT UKURAN 38–44)
+        </div>
+        <form method="post" asp-page-handler="CreateProduct" enctype="multipart/form-data" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">SKU Pabrik *</label>
+                    <input asp-for="NewProduct.Sku" placeholder="KJ-SPT-07" class="input-ledger font-typewriter text-sm" required />
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Nama Model *</label>
+                    <input asp-for="NewProduct.Name" placeholder="Sepatu Kerja Kanvas..." class="input-ledger text-sm" required />
+                </div>
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Kategori *</label>
+                    <select asp-for="NewProduct.Category" class="input-ledger text-sm">
+                        @foreach (FootwearCategory cat in Enum.GetValues<FootwearCategory>())
+                        {
+                            <option value="@cat">@cat.ToIndonesianLabel()</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Harga Eceran (Rp) *</label>
+                    <input asp-for="NewProduct.RetailPrice" type="number" step="1000" class="input-ledger font-typewriter text-sm" required />
+                </div>
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Ilustrasi SVG Pabrik</label>
+                    <select asp-for="NewProduct.SvgIllustrationKey" class="input-ledger text-sm">
+                        @foreach (var svgOpt in RetroSvgHelper.AvailableIllustrationKeys)
+                        {
+                            <option value="@svgOpt.Key">@svgOpt.Label</option>
+                        }
+                    </select>
+                </div>
+                <div class="flex items-end pb-2">
+                    <label class="inline-flex items-center gap-2 text-sm font-bold cursor-pointer">
+                        <input asp-for="NewProduct.IsFeatured" class="w-4 h-4 accent-[#4A2E1B]" />
+                        <span>Tampilkan di Produk Unggulan</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Bahan Atas *</label>
+                    <input asp-for="NewProduct.UpperMaterial" class="input-ledger text-sm" required />
+                </div>
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Bahan Sol *</label>
+                    <input asp-for="NewProduct.SoleMaterial" class="input-ledger text-sm" required />
+                </div>
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Konstruksi *</label>
+                    <input asp-for="NewProduct.ConstructionMethod" class="input-ledger text-sm" required />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Slogan Singkat *</label>
+                    <input asp-for="NewProduct.ShortTagline" placeholder="Ringan dan tahan lama..." class="input-ledger text-sm" required />
+                </div>
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Deskripsi Lengkap *</label>
+                    <input asp-for="NewProduct.Description" placeholder="Penjelasan detail produk..." class="input-ledger text-sm" required />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-dashed border-ink pt-3">
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Warna Awal *</label>
+                    <input asp-for="NewProduct.DefaultColorName" class="input-ledger text-sm" required />
+                </div>
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Kode Hex Warna</label>
+                    <input asp-for="NewProduct.DefaultColorHex" type="color" class="input-ledger !h-10 !p-1" />
+                </div>
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Stok Awal per Ukuran (38–44)</label>
+                    <input asp-for="NewProduct.InitialStockPerSize" type="number" min="0" class="input-ledger font-typewriter text-sm" required />
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-typewriter text-xs font-bold uppercase mb-1">Foto Produk Pabrik (Opsional • .jpg, .png, .webp maks. 3 MB)</label>
+                <input asp-for="NewProduct.PhotoFile" type="file" accept=".jpg,.jpeg,.png,.webp" class="input-ledger text-xs" />
+            </div>
+
+            <button type="submit" class="btn-press btn-leather px-6 py-2.5 text-xs font-typewriter uppercase">
+                Simpan Model Baru ke Gudang
+            </button>
+        </form>
+    </section>
+
+    <!-- Product List & Variant Stock Ledger -->
+    <div class="space-y-5">
+        @foreach (var p in Model.Products)
+        {
+            bool highlighted = Model.HighlightProductId == p.Id;
+            var totalPhysical = p.Variants.Sum(v => v.PhysicalStock);
+            var totalReserved = p.Variants.Sum(v => v.ReservedStock);
+            var totalAvailable = p.Variants.Sum(v => v.AvailableStock);
+            var firstHex = p.Variants.FirstOrDefault()?.ColorHex ?? "#4A2E1B";
+
+            <article class="ink-box bg-newsprint p-5 @(highlighted ? "ring-4 ring-terracotta" : "")">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                    <!-- Preview & Quick Edit Form -->
+                    <div class="lg:col-span-5 space-y-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-24 h-16 bg-cardstock border-2 border-ink p-1 shrink-0 overflow-hidden">
+                                <partial name="_ProductVisualFrame" model="@((p.ImageUrl, p.SvgIllustrationKey, firstHex, p.Name, "h-full"))" />
+                            </div>
+                            <div>
+                                <div class="font-typewriter text-xs font-bold text-leather">@p.Sku • @p.Category.ToIndonesianLabel()</div>
+                                <h2 class="font-display font-extrabold text-xl leading-tight">@p.Name</h2>
+                                <div class="font-typewriter text-xs mt-0.5">
+                                    Tersedia: <strong class="@(totalAvailable < 15 ? "text-terracotta" : "text-bottle")">@totalAvailable psg</strong>
+                                    <span class="text-ink/70">(Fisik: @totalPhysical • Ditahan: @totalReserved)</span>
+                                    @if (!p.IsActive)
+                                    {
+                                        <span class="bg-terracotta text-newsprint px-1.5 py-0.5 text-[10px] ml-1">NONAKTIF</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Update Product Core Fields -->
+                        <form method="post" asp-page-handler="UpdateProduct" enctype="multipart/form-data" class="bg-cardstock border border-ink p-3 space-y-2 text-xs">
+                            <input type="hidden" name="productId" value="@p.Id" />
+                            <input type="hidden" name="shortTagline" value="@p.ShortTagline" />
+                            <input type="hidden" name="description" value="@p.Description" />
+                            <input type="hidden" name="upperMaterial" value="@p.UpperMaterial" />
+                            <input type="hidden" name="soleMaterial" value="@p.SoleMaterial" />
+                            <input type="hidden" name="constructionMethod" value="@p.ConstructionMethod" />
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="font-typewriter font-bold uppercase text-[10px]">Nama</label>
+                                    <input type="text" name="name" value="@p.Name" class="input-ledger text-xs py-1" required />
+                                </div>
+                                <div>
+                                    <label class="font-typewriter font-bold uppercase text-[10px]">Harga Eceran (Rp)</label>
+                                    <input type="number" name="retailPrice" value="@((long)p.RetailPrice)" step="1000" class="input-ledger font-typewriter text-xs py-1" required />
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="font-typewriter font-bold uppercase text-[10px]">Kategori</label>
+                                    <select name="category" class="input-ledger text-xs py-1">
+                                        @foreach (FootwearCategory cat in Enum.GetValues<FootwearCategory>())
+                                        {
+                                            <option value="@cat" selected="@(p.Category == cat)">@cat.ToIndonesianLabel()</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="font-typewriter font-bold uppercase text-[10px]">Ilustrasi SVG</label>
+                                    <select name="svgIllustrationKey" class="input-ledger text-xs py-1">
+                                        @foreach (var svgOpt in RetroSvgHelper.AvailableIllustrationKeys)
+                                        {
+                                            <option value="@svgOpt.Key" selected="@(p.SvgIllustrationKey == svgOpt.Key)">@svgOpt.Label</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="font-typewriter font-bold uppercase text-[10px]">Unggah / Ganti Foto (.jpg, .png, .webp • maks 3MB)</label>
+                                <input type="file" name="photoFile" accept=".jpg,.jpeg,.png,.webp" class="input-ledger text-[11px] py-1" />
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                                <div class="flex items-center gap-3">
+                                    <label class="inline-flex items-center gap-1 cursor-pointer font-bold">
+                                        <input type="checkbox" name="isFeatured" value="true" checked="@p.IsFeatured" class="accent-[#4A2E1B]" />
+                                        <span>Unggulan</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-1 cursor-pointer font-bold">
+                                        <input type="checkbox" name="isActive" value="true" checked="@p.IsActive" class="accent-[#2E4A3E]" />
+                                        <span>Aktif</span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button type="submit" class="btn-press btn-leather px-3 py-1 text-[11px] font-typewriter uppercase">Simpan</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Two-step delete without browser confirm() -->
+                        <form method="post" asp-page-handler="DeleteProduct" class="inline-block" data-confirm-delete>
+                            <input type="hidden" name="productId" value="@p.Id" />
+                            <button type="button" data-arm-delete class="font-typewriter text-[11px] font-bold text-terracotta hover:underline">
+                                [Hapus / Nonaktifkan Produk]
+                            </button>
+                            <span class="hidden items-center gap-2" data-confirm-controls>
+                                <span class="font-typewriter text-[11px] font-bold text-terracotta">Yakin hapus?</span>
+                                <button type="submit" class="btn-press btn-terracotta px-2 py-0.5 text-[10px] font-typewriter uppercase">Ya, Hapus</button>
+                                <button type="button" data-cancel-delete class="btn-press btn-paper px-2 py-0.5 text-[10px] font-typewriter uppercase">Batal</button>
+                            </span>
+                        </form>
+                    </div>
+
+                    <!-- Variant Stock Matrix -->
+                    <div class="lg:col-span-7 space-y-3">
+                        <div class="font-typewriter text-xs font-bold uppercase text-leather">STOK VARIAN UKURAN &amp; WARNA</div>
+                        <div class="overflow-x-auto">
+                            <table class="ledger-table text-xs">
+                                <thead>
+                                    <tr>
+                                        <th>Warna</th>
+                                        <th>Ukuran</th>
+                                        <th>Ditahan / Tersedia</th>
+                                        <th>Stok Fisik Gudang</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var v in p.Variants)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="inline-flex items-center gap-1.5 font-bold">
+                                                    <span class="w-3 h-3 border border-ink inline-block" style="background:@v.ColorHex"></span>
+                                                    @v.ColorName
+                                                </span>
+                                            </td>
+                                            <td class="font-typewriter font-bold">Uk. @v.Size</td>
+                                            <td class="font-typewriter text-[11px]">
+                                                <span class="text-leather">Ditahan: <strong>@v.ReservedStock</strong></span> •
+                                                <span class="@(v.AvailableStock < 5 ? "text-terracotta font-bold" : "text-bottle font-bold")">Sisa: @v.AvailableStock</span>
+                                            </td>
+                                            <td>
+                                                <form method="post" asp-page-handler="UpdateStock" class="flex items-center gap-2">
+                                                    <input type="hidden" name="productId" value="@p.Id" />
+                                                    <input type="hidden" name="variantId" value="@v.Id" />
+                                                    <input type="number" name="stockQuantity" value="@v.PhysicalStock" min="@v.ReservedStock"
+                                                           class="input-ledger !w-24 py-1 text-xs font-typewriter font-bold @(v.AvailableStock < 5 ? "border-terracotta text-terracotta" : "")" />
+                                                    <button type="submit" class="btn-press btn-paper px-2.5 py-1 text-[11px] font-typewriter uppercase">
+                                                        Simpan Fisik
+                                                    </button>
+                                                    @if (v.AvailableStock < 5)
+                                                    {
+                                                        <span class="font-typewriter text-[10px] font-bold text-terracotta uppercase">Menipis!</span>
+                                                    }
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Add New Colorway Form -->
+                        <form method="post" asp-page-handler="AddColorway" class="bg-cardstock border border-ink p-3 flex flex-wrap items-end gap-2 text-xs">
+                            <input type="hidden" name="productId" value="@p.Id" />
+                            <div>
+                                <label class="block font-typewriter font-bold text-[10px] uppercase">Tambah Warna Baru</label>
+                                <input type="text" name="colorName" placeholder="Contoh: Biru Dongker" class="input-ledger text-xs py-1 !w-40" required />
+                            </div>
+                            <div>
+                                <label class="block font-typewriter font-bold text-[10px] uppercase">Hex</label>
+                                <input type="color" name="colorHex" value="#2E4A3E" class="input-ledger !w-12 !h-8 !p-0.5" />
+                            </div>
+                            <div>
+                                <label class="block font-typewriter font-bold text-[10px] uppercase">Stok / Ukuran</label>
+                                <input type="number" name="stockPerSize" value="20" min="0" class="input-ledger font-typewriter text-xs py-1 !w-24" required />
+                            </div>
+                            <button type="submit" class="btn-press btn-bottle px-3 py-1.5 text-[11px] font-typewriter uppercase">
+                                + Tambah Warna (38–44)
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('toggle-new-product-btn')?.addEventListener('click', () => {
+            document.getElementById('new-product-panel')?.classList.toggle('hidden');
+        });
+
+        document.querySelectorAll('[data-confirm-delete]').forEach(form => {
+            const armBtn = form.querySelector('[data-arm-delete]');
+            const cancelBtn = form.querySelector('[data-cancel-delete]');
+            const controls = form.querySelector('[data-confirm-controls]');
+            armBtn?.addEventListener('click', () => {
+                armBtn.classList.add('hidden');
+                controls.classList.remove('hidden');
+                controls.classList.add('inline-flex');
+            });
+            cancelBtn?.addEventListener('click', () => {
+                controls.classList.add('hidden');
+                controls.classList.remove('inline-flex');
+                armBtn.classList.remove('hidden');
+            });
+        });
+    </script>
+}

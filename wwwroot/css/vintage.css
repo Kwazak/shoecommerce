@@ -1,0 +1,258 @@
+:root {
+  --bg-newsprint: #F4EFE6;
+  --bg-cardstock: #EAE0D0;
+  --brand-leather: #4A2E1B;
+  --accent-terracotta: #C85A32;
+  --accent-bottle: #2E4A3E;
+  --ink: #231F20;
+}
+
+html, body {
+  background-color: var(--bg-newsprint);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-image: radial-gradient(rgba(35, 31, 32, 0.055) 1px, transparent 0);
+  background-size: 16px 16px;
+}
+
+.font-display {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+.font-typewriter {
+  font-family: 'Courier Prime', 'Courier New', monospace;
+}
+
+/* Hard ink offset shadows */
+.ink-box {
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0px var(--ink);
+  border-radius: 2px;
+}
+
+.ink-box-sm {
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0px var(--ink);
+  border-radius: 2px;
+}
+
+.ink-box-lg {
+  border: 2px solid var(--ink);
+  box-shadow: 6px 6px 0px var(--ink);
+  border-radius: 2px;
+}
+
+/* Double-ruled vintage ledger border */
+.double-ruled {
+  border: 3px double var(--ink);
+  box-shadow: inset 0 0 0 2px var(--bg-newsprint), inset 0 0 0 3px var(--ink);
+}
+
+/* Press-cut tactile buttons */
+.btn-press {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0px var(--ink);
+  border-radius: 2px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: transform 80ms ease, box-shadow 80ms ease, background-color 120ms ease;
+  cursor: pointer;
+}
+
+.btn-press:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px var(--ink);
+}
+
+.btn-press:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--ink);
+}
+
+.btn-leather {
+  background-color: var(--brand-leather);
+  color: var(--bg-newsprint);
+}
+.btn-leather:hover {
+  background-color: #3a2314;
+}
+
+.btn-terracotta {
+  background-color: var(--accent-terracotta);
+  color: var(--bg-newsprint);
+}
+.btn-terracotta:hover {
+  background-color: #b44d28;
+}
+
+.btn-bottle {
+  background-color: var(--accent-bottle);
+  color: var(--bg-newsprint);
+}
+.btn-bottle:hover {
+  background-color: #233b31;
+}
+
+.btn-paper {
+  background-color: var(--bg-newsprint);
+  color: var(--ink);
+}
+.btn-paper:hover {
+  background-color: var(--bg-cardstock);
+}
+
+/* Perforated coupon / ticket stub edge */
+.ticket-stub {
+  position: relative;
+  border: 2px dashed var(--ink);
+  background-color: var(--bg-cardstock);
+  border-radius: 2px;
+}
+
+.perforated-divider {
+  border-top: 2px dashed var(--ink);
+  position: relative;
+}
+
+/* Radial halftone dot accent behind discount & promo badges */
+.halftone-badge {
+  position: relative;
+  background-image: radial-gradient(rgba(35, 31, 32, 0.16) 1.1px, transparent 1.1px);
+  background-size: 6px 6px;
+}
+
+/* Subtle aged paper grain overlay */
+.paper-grain-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.025;
+}
+
+/* Vintage double-bordered print frame for hybrid product photography */
+.vintage-photo-frame {
+  border: 3px double var(--ink);
+  background-color: var(--bg-cardstock);
+  padding: 4px;
+}
+
+.vintage-photo-img {
+  filter: sepia(12%) contrast(105%);
+  object-fit: cover;
+  border: 1.5px solid var(--ink);
+}
+
+/* Ledger tables (buku kas) */
+.ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.ledger-table th {
+  background-color: var(--brand-leather);
+  color: var(--bg-newsprint);
+  font-family: 'Courier Prime', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.78rem;
+  padding: 0.65rem 0.75rem;
+  border: 1.5px solid var(--ink);
+  text-align: left;
+}
+
+.ledger-table td {
+  padding: 0.65rem 0.75rem;
+  border: 1.5px solid var(--ink);
+  background-color: var(--bg-newsprint);
+  vertical-align: middle;
+}
+
+.ledger-table tbody tr:nth-child(even) td {
+  background-color: #EFE8DA;
+}
+
+/* Vintage form inputs */
+.input-ledger {
+  width: 100%;
+  background-color: #FBF8F3;
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+  padding: 0.55rem 0.75rem;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.input-ledger:focus {
+  outline: none;
+  box-shadow: 3px 3px 0px var(--accent-terracotta);
+  background-color: #FFFFFF;
+}
+
+/* Toast Rubber Stamp Animation */
+@keyframes stampIn {
+  0% {
+    opacity: 0;
+    transform: scale(1.18) rotate(-3deg);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(0.97) rotate(0.5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.stamp-toast {
+  animation: stampIn 220ms cubic-bezier(0.2, 0.9, 0.3, 1.1) forwards;
+}
+
+/* Carbon-copy invoice styling & print rules */
+.carbon-invoice {
+  background-color: #FBF7EE;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 29px,
+    rgba(35, 31, 32, 0.05) 30px
+  );
+}
+
+@media print {
+  body {
+    background: #FFFFFF !important;
+    background-image: none !important;
+    color: #000000 !important;
+  }
+
+  .no-print,
+  header,
+  footer,
+  #laci-kasir-drawer,
+  #laci-kasir-backdrop,
+  #vintage-toast-container {
+    display: none !important;
+  }
+
+  .print-full {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .carbon-invoice {
+    border: 2px solid #000000 !important;
+    box-shadow: none !important;
+    background-image: none !important;
+  }
+}

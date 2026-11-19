@@ -1,0 +1,158 @@
+@page
+@model KaryaJayaFootwear.Pages.Cart.IndexModel
+@{
+    ViewData["Title"] = "Keranjang & Laci Kasir";
+}
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink pb-4 mb-6">
+        <div>
+            <div class="font-typewriter text-xs font-bold uppercase text-terracotta">BUKU KAS SEMENTARA</div>
+            <h1 class="font-display font-extrabold text-3xl sm:text-4xl">Daftar Pesanan di Laci Kasir</h1>
+        </div>
+        <a asp-page="/Products/Index" class="btn-press btn-paper px-4 py-2 text-xs font-typewriter uppercase">
+            + Tambah Model Lain
+        </a>
+    </div>
+
+    @if (Model.Summary.Items.Count == 0)
+    {
+        <div class="ink-box bg-cardstock p-10 text-center max-w-2xl mx-auto">
+            <div class="font-typewriter text-xs uppercase tracking-widest text-leather mb-2">BELUM ADA PESANAN</div>
+            <h2 class="font-display font-extrabold text-2xl mb-2">Laci Kasir Masih Kosong</h2>
+            <p class="text-sm text-ink/80 mb-5">Silakan pilih sepatu, sandal, atau boot dari katalog pabrik kami.</p>
+            <a asp-page="/Products/Index" class="btn-press btn-leather px-6 py-3 text-xs font-typewriter uppercase">
+                Lihat Katalog Pabrik →
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Wholesale Tier Progress Bar (especially prominent for PartnerB2B) -->
+        <div class="ink-box bg-cardstock p-5 mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <div class="font-typewriter text-xs font-bold uppercase text-bottle">
+                    @(Model.Summary.IsWholesalePricingActive ? "PROGRES TINGKAT KODIAN MITRA B2B" : "INFO HARGA KODIAN PABRIK")
+                </div>
+                <div class="font-typewriter text-xs font-bold">
+                    Total saat ini: <span class="text-terracotta text-sm">@Model.Summary.TotalPairs Pasang</span>
+                </div>
+            </div>
+            <div class="w-full h-4 bg-newsprint border-2 border-ink overflow-hidden mb-2">
+                <div class="h-full bg-bottle transition-all duration-300" style="width:@Model.Summary.TierProgress.ProgressPercent%"></div>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
+                <span class="font-semibold text-leather">@Model.Summary.TierProgress.BannerMessage</span>
+                @if (!Model.Summary.IsWholesalePricingActive && !User.IsInRole(nameof(UserRole.PartnerB2B)))
+                {
+                    <a asp-page="/Account/Register" asp-route-type="PartnerB2B" class="font-typewriter text-xs font-bold underline text-bottle">
+                        Daftar Mitra B2B →
+                    </a>
+                }
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+            <!-- Cart Ledger Table -->
+            <div class="lg:col-span-8 ink-box bg-newsprint overflow-x-auto">
+                <table class="ledger-table">
+                    <thead>
+                        <tr>
+                            <th>Produk &amp; Varian</th>
+                            <th>Harga Satuan</th>
+                            <th>Jumlah (Psg)</th>
+                            <th class="text-right">Subtotal</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Summary.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-20 h-14 bg-cardstock border border-ink p-1 shrink-0 hidden sm:block">
+                                            @Html.Raw(RetroSvgHelper.RenderFootwearSvg(item.SvgIllustrationKey, item.ColorHex, "w-full h-full"))
+                                        </div>
+                                        <div>
+                                            <div class="font-typewriter text-[11px] text-leather font-bold">@item.Sku</div>
+                                            <a asp-page="/Products/Details" asp-route-id="@item.ProductId" class="font-display font-bold text-base hover:text-terracotta">
+                                                @item.ProductName
+                                            </a>
+                                            <div class="text-xs text-ink/75">
+                                                Ukuran <strong>@item.Size</strong> • Warna <strong>@item.ColorName</strong>
+                                                <span class="font-typewriter text-[11px]">(Stok: @item.AvailableStock)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="font-typewriter text-xs">
+                                    @if (item.UnitAppliedPrice < item.UnitRetailPrice)
+                                    {
+                                        <div class="line-through text-ink/50">@FormatHelper.Rupiah(item.UnitRetailPrice)</div>
+                                        <div class="font-bold text-bottle">@FormatHelper.Rupiah(item.UnitAppliedPrice)</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="font-bold">@FormatHelper.Rupiah(item.UnitRetailPrice)</div>
+                                    }
+                                </td>
+                                <td>
+                                    <form method="post" asp-page-handler="Update" class="flex items-center gap-1.5">
+                                        <input type="hidden" name="variantId" value="@item.VariantId" />
+                                        <input type="number" name="quantity" value="@item.Quantity" min="1" max="@item.AvailableStock" class="input-ledger !w-20 text-center font-typewriter font-bold py-1 text-sm" />
+                                        <button type="submit" class="btn-press btn-paper px-2 py-1 text-[11px] font-typewriter uppercase">Ubah</button>
+                                    </form>
+                                </td>
+                                <td class="text-right font-typewriter font-bold text-sm">
+                                    @FormatHelper.Rupiah(item.LineAppliedTotal)
+                                </td>
+                                <td>
+                                    <form method="post" asp-page-handler="Remove">
+                                        <input type="hidden" name="variantId" value="@item.VariantId" />
+                                        <button type="submit" class="font-typewriter text-xs font-bold text-terracotta hover:underline">[Hapus]</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Summary Ticket -->
+            <div class="lg:col-span-4 ink-box bg-cardstock p-5">
+                <div class="font-typewriter text-xs font-bold uppercase tracking-widest border-b-2 border-ink pb-2 mb-4">
+                    Ringkasan Nota Pabrik
+                </div>
+                <div class="space-y-2.5 text-sm mb-5">
+                    <div class="flex justify-between">
+                        <span>Total Pasang</span>
+                        <span class="font-typewriter font-bold">@Model.Summary.TotalPairs Pasang</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Subtotal Harga Eceran</span>
+                        <span class="font-typewriter">@FormatHelper.Rupiah(Model.Summary.GrossRetailSubtotal)</span>
+                    </div>
+                    @if (Model.Summary.DiscountAmount > 0)
+                    {
+                        <div class="flex justify-between text-bottle font-bold">
+                            <span>Diskon Kodian (@Model.Summary.DiscountPercent.ToString("0")%)</span>
+                            <span class="font-typewriter">- @FormatHelper.Rupiah(Model.Summary.DiscountAmount)</span>
+                        </div>
+                    }
+                    <div class="flex justify-between text-lg font-extrabold pt-3 border-t-2 border-ink">
+                        <span>Total Barang</span>
+                        <span class="font-typewriter text-terracotta">@FormatHelper.Rupiah(Model.Summary.NetSubtotal)</span>
+                    </div>
+                    <div class="text-[11px] text-ink/70 font-typewriter">
+                        *Ongkos kirim dihitung pada halaman pembuatan faktur sesuai pilihan ekspedisi.
+                    </div>
+                </div>
+
+                <a asp-page="/Checkout/Index" class="btn-press btn-leather w-full py-3 text-sm font-typewriter uppercase text-center">
+                    Lanjut ke Faktur &amp; Pembayaran →
+                </a>
+            </div>
+        </div>
+    }
+</div>

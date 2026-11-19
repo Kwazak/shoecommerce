@@ -1,0 +1,207 @@
+@page
+@model KaryaJayaFootwear.Pages.Admin.WarehouseScanModel
+@{
+    ViewData["Title"] = "Stasiun Scan Gudang & Resi";
+}
+
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="border-b-2 border-ink pb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+            <div class="font-typewriter text-xs font-bold uppercase text-bottle">MEJA PACKING &amp; EKSPEDISI PABRIK</div>
+            <h1 class="font-display font-extrabold text-3xl">Stasiun Scan Gudang &amp; Input Resi</h1>
+            <p class="text-sm text-ink/80 mt-1">
+                Arahkan pemindai barcode atau ketik nomor faktur untuk memeriksa daftar pasang sebelum dikirim.
+            </p>
+        </div>
+        <a asp-page="/Admin/Orders" class="btn-press btn-paper px-4 py-2 text-xs font-typewriter uppercase">
+            Lihat Buku Faktur →
+        </a>
+    </div>
+
+    <!-- STEP 1: Invoice Lookup -->
+    <section class="ink-box bg-cardstock p-5 sm:p-6">
+        <div class="font-typewriter text-xs font-bold uppercase text-leather mb-2">
+            LANGKAH 1 • PINDAI / KETIK NOMOR FAKTUR
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3">
+            <input id="invoiceInput"
+                   type="text"
+                   autofocus
+                   autocomplete="off"
+                   placeholder="FKJ-20261120-XXXX"
+                   class="input-ledger font-typewriter font-extrabold text-lg sm:text-xl tracking-wider uppercase py-3 flex-1" />
+            <button type="button" id="btn-lookup-invoice" class="btn-press btn-leather px-6 py-3.5 text-sm font-typewriter uppercase shrink-0">
+                CARI FAKTUR [ENTER]
+            </button>
+        </div>
+    </section>
+
+    <!-- Success Stamp Banner (shown after dispatch) -->
+    <section id="dispatch-success-stamp" class="hidden ink-box-lg bg-[#DCE7DF] border-bottle p-6 text-center space-y-3">
+        <div class="flex justify-center">
+            @Html.Raw(RetroSvgHelper.RenderRubberStampSvg("GUDANG PABRIK", "TERKIRIM", "RESI & WA TERCATAT", "#2E4A3E", -5))
+        </div>
+        <div id="dispatch-success-detail" class="font-typewriter text-sm font-bold text-bottle"></div>
+    </section>
+
+    <!-- STEP 2 & 3: Dynamic Manifest Checklist & Dispatch Form -->
+    <section id="manifest-panel" class="hidden space-y-6">
+        <div class="ink-box bg-newsprint p-5 sm:p-6">
+            <div class="flex flex-wrap items-start justify-between gap-3 border-b-2 border-ink pb-3 mb-4">
+                <div>
+                    <div class="font-typewriter text-xs font-bold uppercase text-terracotta">LANGKAH 2 • DAFTAR CEK PACKING</div>
+                    <h2 id="manifest-invoice-title" class="font-display font-extrabold text-2xl"></h2>
+                    <div id="manifest-customer-meta" class="text-sm text-ink/85 mt-1"></div>
+                </div>
+                <span id="manifest-status-badge" class="font-typewriter text-xs font-bold px-3 py-1 border-2 border-ink bg-cardstock uppercase"></span>
+            </div>
+
+            <div id="manifest-checklist" class="space-y-2.5"></div>
+        </div>
+
+        <div class="ink-box bg-cardstock p-5 sm:p-6 space-y-4">
+            <div class="font-typewriter text-xs font-bold uppercase text-bottle border-b-2 border-ink pb-2">
+                LANGKAH 3 • SAHKAN EKSPEDISI &amp; NOMOR RESI
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="courierInput" class="block font-typewriter text-xs font-bold uppercase mb-1">Nama Ekspedisi / Kurir *</label>
+                    <input id="courierInput" type="text" placeholder="Contoh: Kargo Indah / JNE / Truk Pabrik" class="input-ledger font-bold py-3 text-base" />
+                </div>
+                <div>
+                    <label for="trackingInput" class="block font-typewriter text-xs font-bold uppercase mb-1">Nomor Resi Pengiriman *</label>
+                    <input id="trackingInput" type="text" placeholder="Masukkan / scan nomor resi..." class="input-ledger font-typewriter font-bold py-3 text-base uppercase" />
+                </div>
+            </div>
+
+            <button type="button" id="btn-submit-dispatch" class="btn-press btn-bottle w-full py-4 text-sm sm:text-base font-typewriter uppercase">
+                SAHKAN PENGIRIMAN &amp; KIRIM NOTIFIKASI →
+            </button>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const invoiceInput = document.getElementById('invoiceInput');
+            const lookupBtn = document.getElementById('btn-lookup-invoice');
+            const manifestPanel = document.getElementById('manifest-panel');
+            const titleEl = document.getElementById('manifest-invoice-title');
+            const metaEl = document.getElementById('manifest-customer-meta');
+            const statusBadge = document.getElementById('manifest-status-badge');
+            const checklistEl = document.getElementById('manifest-checklist');
+            const courierInput = document.getElementById('courierInput');
+            const trackingInput = document.getElementById('trackingInput');
+            const dispatchBtn = document.getElementById('btn-submit-dispatch');
+            const successBox = document.getElementById('dispatch-success-stamp');
+            const successDetail = document.getElementById('dispatch-success-detail');
+
+            let activeInvoice = '';
+
+            function escapeHtml(s) {
+                return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+
+            async function lookupInvoice() {
+                const inv = (invoiceInput.value || '').trim();
+                if (!inv) {
+                    window.showStampToast('Masukkan atau scan nomor faktur terlebih dahulu.', 'error');
+                    invoiceInput.focus();
+                    return;
+                }
+
+                successBox.classList.add('hidden');
+
+                try {
+                    const res = await fetch(`/api/v1/warehouse/orders/${encodeURIComponent(inv)}`);
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        manifestPanel.classList.add('hidden');
+                        activeInvoice = '';
+                        window.showStampToast(data.message || 'Faktur tidak ditemukan.', 'error');
+                        invoiceInput.select();
+                        return;
+                    }
+
+                    activeInvoice = data.invoiceNumber;
+                    titleEl.textContent = `${data.invoiceNumber} (${data.totalPairs} Pasang)`;
+                    const shopPart = data.shopName ? ` • ${data.shopName}` : '';
+                    metaEl.innerHTML = `<strong>${escapeHtml(data.customerName)}${escapeHtml(shopPart)}</strong><br/>` +
+                        `<span class="font-typewriter text-xs">${escapeHtml(data.shippingMethod)} → ${escapeHtml(data.shippingCity)}</span>`;
+                    statusBadge.textContent = data.status;
+
+                    checklistEl.innerHTML = (data.items || []).map((item, idx) => `
+                        <label class="flex items-center gap-4 p-3.5 border-2 border-ink bg-cardstock cursor-pointer select-none">
+                            <input type="checkbox" class="w-6 h-6 accent-[#2E4A3E] shrink-0" />
+                            <div class="flex-1">
+                                <div class="font-typewriter text-xs font-bold text-leather">${escapeHtml(item.productSku)}</div>
+                                <div class="font-display font-bold text-base">${escapeHtml(item.productName)}</div>
+                                <div class="font-typewriter text-xs text-ink/80">Warna: ${escapeHtml(item.colorName)} • Ukuran: <strong>${item.size}</strong></div>
+                            </div>
+                            <div class="font-typewriter font-extrabold text-lg bg-newsprint border-2 border-ink px-3 py-1">
+                                ${item.quantity} psg
+                            </div>
+                        </label>
+                    `).join('');
+
+                    courierInput.value = data.courierName || '';
+                    trackingInput.value = data.trackingNumber || '';
+                    manifestPanel.classList.remove('hidden');
+                    courierInput.focus();
+                } catch (err) {
+                    window.showStampToast('Gagal menghubungi API Gudang.', 'error');
+                }
+            }
+
+            async function submitDispatch() {
+                if (!activeInvoice) {
+                    window.showStampToast('Cari faktur terlebih dahulu.', 'error');
+                    return;
+                }
+
+                const courierName = (courierInput.value || '').trim();
+                const trackingNumber = (trackingInput.value || '').trim();
+                if (!courierName || !trackingNumber) {
+                    window.showStampToast('Nama Ekspedisi dan Nomor Resi wajib diisi.', 'error');
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`/api/v1/warehouse/orders/${encodeURIComponent(activeInvoice)}/dispatch`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ courierName, trackingNumber })
+                    });
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        window.showStampToast(data.message || 'Gagal mengesahkan pengiriman.', 'error');
+                        return;
+                    }
+
+                    window.showStampToast(data.message || 'Pengiriman disahkan!', 'success');
+                    successDetail.textContent = `${activeInvoice} • ${courierName} (${trackingNumber}) — Notifikasi WhatsApp dicatat.`;
+                    successBox.classList.remove('hidden');
+                    manifestPanel.classList.add('hidden');
+                    activeInvoice = '';
+                    invoiceInput.value = '';
+                    invoiceInput.focus();
+                } catch (err) {
+                    window.showStampToast('Terjadi kesalahan saat mengirim data resi.', 'error');
+                }
+            }
+
+            lookupBtn.addEventListener('click', lookupInvoice);
+            invoiceInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    lookupInvoice();
+                }
+            });
+            dispatchBtn.addEventListener('click', submitDispatch);
+        })();
+    </script>
+}

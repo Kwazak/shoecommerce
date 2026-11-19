@@ -1,0 +1,139 @@
+@page
+@model KaryaJayaFootwear.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Pendaftaran Pembeli & Mitra Toko";
+}
+
+<div class="max-w-2xl mx-auto px-4 py-10">
+    <div class="ink-box-lg bg-newsprint p-7">
+        <div class="border-b-2 border-ink pb-4 mb-6">
+            <div class="font-typewriter text-xs font-bold uppercase text-bottle">FORMULIR PENDAFTARAN RESMI</div>
+            <h1 class="font-display font-extrabold text-3xl">Daftar Akun Pembeli atau Mitra Kodian</h1>
+            <p class="text-sm text-ink/80 mt-1">Pilih jenis akun sesuai kebutuhan Anda—pembelian satuan atau stok toko sepatu daerah.</p>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="border-2 border-terracotta bg-cardstock p-3.5 mb-5 text-xs font-bold text-terracotta">
+                <div asp-validation-summary="All"></div>
+            </div>
+        }
+
+        <form method="post" class="space-y-5">
+            <!-- Account Type Radio Cards -->
+            <div>
+                <div class="font-typewriter text-xs font-bold uppercase mb-2">1. Pilih Jenis Keanggotaan *</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="border-2 border-ink bg-cardstock p-4 cursor-pointer flex items-start gap-3">
+                        <input type="radio" asp-for="Input.AccountType" value="@UserRole.CustomerB2C" data-role-radio class="mt-1 accent-[#4A2E1B]" />
+                        <div>
+                            <div class="font-display font-bold text-base">Pembeli Eceran (B2C)</div>
+                            <p class="text-xs text-ink/75 mt-0.5">Belanja 1 pasang atau lebih dengan harga langsung pabrik.</p>
+                        </div>
+                    </label>
+
+                    <label class="border-2 border-ink bg-[#DCE7DF] p-4 cursor-pointer flex items-start gap-3">
+                        <input type="radio" asp-for="Input.AccountType" value="@UserRole.PartnerB2B" data-role-radio class="mt-1 accent-[#2E4A3E]" />
+                        <div>
+                            <div class="font-display font-bold text-base text-bottle">Mitra Toko / Grosir (B2B)</div>
+                            <p class="text-xs text-ink/80 mt-0.5">Diskon kodian 15%–35% &amp; Tempo Mitra 14 Hari (perlu verifikasi Admin).</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Standard Fields -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label asp-for="Input.FullName" class="block font-typewriter text-xs font-bold uppercase mb-1">Nama Lengkap *</label>
+                    <input asp-for="Input.FullName" class="input-ledger" placeholder="Nama pemilik / pembeli" />
+                    <span asp-validation-for="Input.FullName" class="text-xs text-terracotta font-bold"></span>
+                </div>
+                <div>
+                    <label asp-for="Input.PhoneNumber" class="block font-typewriter text-xs font-bold uppercase mb-1">No. WhatsApp / HP *</label>
+                    <input asp-for="Input.PhoneNumber" class="input-ledger" placeholder="0812xxxxxxxx" />
+                    <span asp-validation-for="Input.PhoneNumber" class="text-xs text-terracotta font-bold"></span>
+                </div>
+            </div>
+
+            <div>
+                <label asp-for="Input.Email" class="block font-typewriter text-xs font-bold uppercase mb-1">Alamat Email (Unik) *</label>
+                <input asp-for="Input.Email" class="input-ledger" placeholder="tokosepatu@contoh.id" />
+                <span asp-validation-for="Input.Email" class="text-xs text-terracotta font-bold"></span>
+            </div>
+
+            <!-- Dynamic B2B Shop Fields -->
+            <div id="b2b-shop-fields" class="hidden border-2 border-ink bg-cardstock p-5 space-y-4">
+                <div class="font-typewriter text-xs font-bold uppercase text-bottle border-b border-dashed border-ink pb-2">
+                    2. Keterangan Toko Mitra Grosir (Wajib Diisi)
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label asp-for="Input.ShopName" class="block font-typewriter text-xs font-bold uppercase mb-1">Nama Toko Sepatu *</label>
+                        <input asp-for="Input.ShopName" id="input-shop-name" class="input-ledger" placeholder="Contoh: Toko Sepatu Maju Jaya" />
+                    </div>
+                    <div>
+                        <label asp-for="Input.City" class="block font-typewriter text-xs font-bold uppercase mb-1">Kota / Kabupaten *</label>
+                        <input asp-for="Input.City" id="input-shop-city" class="input-ledger" placeholder="Contoh: Kab. Tasikmalaya" />
+                    </div>
+                </div>
+
+                <div>
+                    <label asp-for="Input.ShopAddress" class="block font-typewriter text-xs font-bold uppercase mb-1">Alamat Lengkap Toko *</label>
+                    <textarea asp-for="Input.ShopAddress" id="input-shop-address" rows="2" class="input-ledger" placeholder="Alamat kios/pasar/jalan lengkap untuk pengiriman kargo"></textarea>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label asp-for="Input.Password" class="block font-typewriter text-xs font-bold uppercase mb-1">Kata Sandi *</label>
+                    <input asp-for="Input.Password" type="password" class="input-ledger" placeholder="Minimal 6 karakter" />
+                    <span asp-validation-for="Input.Password" class="text-xs text-terracotta font-bold"></span>
+                </div>
+                <div>
+                    <label asp-for="Input.ConfirmPassword" class="block font-typewriter text-xs font-bold uppercase mb-1">Ulangi Kata Sandi *</label>
+                    <input asp-for="Input.ConfirmPassword" type="password" class="input-ledger" placeholder="Ketik ulang kata sandi" />
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-xs text-terracotta font-bold"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-press btn-leather w-full py-3.5 text-sm font-typewriter uppercase">
+                Daftarkan Akun Saya →
+            </button>
+        </form>
+
+        <div class="mt-5 pt-4 border-t border-dashed border-ink text-center text-xs">
+            Sudah punya akun? <a asp-page="/Account/Login" class="font-bold underline text-terracotta">Masuk di sini</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const radios = document.querySelectorAll('[data-role-radio]');
+            const b2bBox = document.getElementById('b2b-shop-fields');
+            const shopInputs = [
+                document.getElementById('input-shop-name'),
+                document.getElementById('input-shop-city'),
+                document.getElementById('input-shop-address')
+            ];
+
+            function syncShopFields() {
+                const checked = document.querySelector('[data-role-radio]:checked');
+                const isB2B = checked && checked.value === 'PartnerB2B';
+                if (isB2B) {
+                    b2bBox.classList.remove('hidden');
+                    shopInputs.forEach(inp => inp && inp.setAttribute('required', 'required'));
+                } else {
+                    b2bBox.classList.add('hidden');
+                    shopInputs.forEach(inp => inp && inp.removeAttribute('required'));
+                }
+            }
+
+            radios.forEach(r => r.addEventListener('change', syncShopFields));
+            syncShopFields();
+        })();
+    </script>
+}

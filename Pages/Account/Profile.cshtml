@@ -1,0 +1,78 @@
+@page
+@model KaryaJayaFootwear.Pages.Account.ProfileModel
+@{
+    ViewData["Title"] = "Profil Akun";
+}
+
+<div class="max-w-3xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between border-b-2 border-ink pb-4 mb-6">
+        <div>
+            <div class="font-typewriter text-xs font-bold uppercase text-terracotta">KARTU IDENTITAS ANGGOTA</div>
+            <h1 class="font-display font-extrabold text-3xl">Profil &amp; Alamat Pengiriman</h1>
+        </div>
+        <a asp-page="/Account/Orders" class="btn-press btn-paper px-4 py-2 text-xs font-typewriter uppercase">← Riwayat Pesanan</a>
+    </div>
+
+    <div class="ink-box bg-newsprint p-6">
+        <div class="bg-cardstock border-2 border-ink p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <div class="font-typewriter text-xs uppercase text-ink/70">Email Terdaftar</div>
+                <div class="font-typewriter font-bold text-base">@Model.CurrentUser.Email</div>
+            </div>
+            <div class="text-right">
+                <div class="font-typewriter text-xs uppercase text-ink/70">Jenis Akun</div>
+                <div class="font-typewriter font-bold text-sm">
+                    @if (Model.CurrentUser.Role == UserRole.PartnerB2B)
+                    {
+                        <span class="@(Model.CurrentUser.IsB2BApproved ? "text-bottle" : "text-terracotta")">
+                            @(Model.CurrentUser.IsB2BApproved ? "MITRA B2B TERVERIFIKASI" : "MITRA B2B (MENUNGGU ACC)")
+                        </span>
+                    }
+                    else
+                    {
+                        <span>PEMBELI ECERAN (B2C)</span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label asp-for="Input.FullName" class="block font-typewriter text-xs font-bold uppercase mb-1">Nama Lengkap</label>
+                    <input asp-for="Input.FullName" class="input-ledger" />
+                    <span asp-validation-for="Input.FullName" class="text-xs text-terracotta font-bold"></span>
+                </div>
+                <div>
+                    <label asp-for="Input.PhoneNumber" class="block font-typewriter text-xs font-bold uppercase mb-1">No. WhatsApp / HP</label>
+                    <input asp-for="Input.PhoneNumber" class="input-ledger" />
+                    <span asp-validation-for="Input.PhoneNumber" class="text-xs text-terracotta font-bold"></span>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.CurrentUser.ShopName))
+            {
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Nama Toko Terdaftar</label>
+                    <input value="@Model.CurrentUser.ShopName" disabled class="input-ledger bg-cardstock/70 cursor-not-allowed" />
+                </div>
+            }
+
+            <div>
+                <label asp-for="Input.City" class="block font-typewriter text-xs font-bold uppercase mb-1">Kota / Kabupaten</label>
+                <input asp-for="Input.City" class="input-ledger" />
+            </div>
+
+            <div>
+                <label asp-for="Input.ShopAddress" class="block font-typewriter text-xs font-bold uppercase mb-1">Alamat Lengkap</label>
+                <textarea asp-for="Input.ShopAddress" rows="2" class="input-ledger"></textarea>
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+                <button type="submit" class="btn-press btn-leather px-6 py-2.5 text-xs font-typewriter uppercase">
+                    Simpan Perubahan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

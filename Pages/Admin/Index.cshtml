@@ -1,0 +1,288 @@
+@page
+@using System.Text.Json
+@model KaryaJayaFootwear.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "Ikhtisar Penjualan Pabrik";
+    var d = Model.Dashboard;
+    var chartPayload = JsonSerializer.Serialize(new
+    {
+        trendLabels = d.RevenueTrend.Select(x => x.DateLabel),
+        trendB2C = d.RevenueTrend.Select(x => x.B2CRevenue),
+        trendB2B = d.RevenueTrend.Select(x => x.B2BRevenue),
+        categoryLabels = d.CategoryBreakdown.Select(x => x.CategoryName),
+        categoryPairs = d.CategoryBreakdown.Select(x => x.PairsSold),
+        paymentLabels = d.PaymentBreakdown.Select(x => x.PaymentLabel),
+        paymentRevenue = d.PaymentBreakdown.Select(x => x.Revenue)
+    });
+}
+
+<div class="space-y-6">
+    <!-- Top Header & Date Range Filter -->
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-ink pb-4">
+        <div>
+            <div class="font-typewriter text-xs font-bold uppercase text-terracotta">LAPORAN BUKU KAS PABRIK • @d.DateRangeLabel.ToUpperInvariant()</div>
+            <h1 class="font-display font-extrabold text-3xl">Statistik Penjualan &amp; Produksi</h1>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+            @foreach (var (key, label) in new[] { ("today", "Hari Ini"), ("7d", "7 Hari Terakhir"), ("30d", "30 Hari Terakhir"), ("all", "Semua Waktu") })
+            {
+                bool active = d.DateRangeKey == key;
+                <a asp-page="/Admin/Index" asp-route-Range="@key"
+                   class="px-3 py-1.5 border-2 border-ink font-typewriter text-xs font-bold uppercase @(active ? "bg-leather text-newsprint shadow-[2px_2px_0px_#231F20]" : "bg-cardstock hover:bg-newsprint")">
+                    @label
+                </a>
+            }
+        </div>
+    </div>
+
+    @if (d.PendingB2BPartnerCount > 0)
+    {
+        <div class="ink-box bg-[#F7E5DF] border-terracotta p-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="text-sm font-bold text-ink">
+                <span class="font-typewriter bg-terracotta text-newsprint px-2 py-0.5 text-xs mr-2">PERLU TINDAKAN</span>
+                Ada <strong>@d.PendingB2BPartnerCount</strong> pendaftar Mitra Toko B2B menunggu verifikasi Admin Pabrik.
+            </div>
+            <a asp-page="/Admin/Partners" class="btn-press btn-terracotta px-4 py-1.5 text-xs font-typewriter uppercase">
+                Buka Antrean Mitra →
+            </a>
+        </div>
+    }
+
+    <!-- 4 Core KPI Ledger Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+        <div class="ink-box bg-newsprint p-4">
+            <div class="font-typewriter text-[11px] font-bold uppercase text-leather">Total Omzet Penjualan</div>
+            <div class="font-typewriter font-extrabold text-2xl text-ink mt-1">@FormatHelper.Rupiah(d.TotalRevenue)</div>
+            <div class="mt-3 pt-2 border-t border-dashed border-ink/50 text-xs font-typewriter flex justify-between">
+                <span class="text-terracotta font-bold">B2C: @d.B2CSharePercent%</span>
+                <span class="text-bottle font-bold">B2B: @d.B2BSharePercent%</span>
+            </div>
+        </div>
+
+        <div class="ink-box bg-newsprint p-4">
+            <div class="font-typewriter text-[11px] font-bold uppercase text-leather">Total Pasang Terjual</div>
+            <div class="font-typewriter font-extrabold text-2xl text-ink mt-1">@d.TotalPairsSold Pasang</div>
+            <div class="mt-3 pt-2 border-t border-dashed border-ink/50 text-[11px] font-typewriter flex justify-between gap-1">
+                <span>Spt: <strong>@d.SepatuPairsSold</strong></span>
+                <span>Snd: <strong>@d.SandalPairsSold</strong></span>
+                <span>Bot: <strong>@d.BootPairsSold</strong></span>
+            </div>
+        </div>
+
+        <div class="ink-box bg-newsprint p-4">
+            <div class="font-typewriter text-[11px] font-bold uppercase text-leather">Rata-Rata Nilai Pesanan</div>
+            <div class="font-typewriter font-extrabold text-2xl text-ink mt-1">@FormatHelper.Rupiah(d.AverageOrderValue)</div>
+            <div class="mt-3 pt-2 border-t border-dashed border-ink/50 text-xs font-typewriter flex justify-between">
+                <span>Total Faktur: <strong>@d.TotalOrders</strong></span>
+                <span class="text-terracotta font-bold">Antre Proses: @d.ActiveOrdersAwaitingFulfillment</span>
+            </div>
+        </div>
+
+        <div class="ink-box bg-cardstock p-4">
+            <div class="font-typewriter text-[11px] font-bold uppercase text-bottle">Total Piutang Tempo B2B</div>
+            <div class="font-typewriter font-extrabold text-2xl text-terracotta mt-1">@FormatHelper.Rupiah(d.OutstandingB2BCreditReceivables)</div>
+            <div class="mt-3 pt-2 border-t border-dashed border-ink/50 text-xs font-typewriter">
+                Faktur Tempo 14 Hari belum lunas
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <div class="xl:col-span-6 ink-box bg-newsprint p-5">
+            <div class="font-typewriter text-xs font-bold uppercase text-leather mb-1">GRAFIK TREN OMZET HARIAN</div>
+            <h2 class="font-display font-bold text-lg mb-4">Perbandingan B2C Eceran vs B2B Kodian</h2>
+            <div class="h-64">
+                <canvas id="revenueTrendChart"></canvas>
+            </div>
+        </div>
+
+        <div class="xl:col-span-3 ink-box bg-newsprint p-5">
+            <div class="font-typewriter text-xs font-bold uppercase text-leather mb-1">KOMPOSISI KATEGORI</div>
+            <h2 class="font-display font-bold text-lg mb-4">Pasang Terjual per Lini</h2>
+            <div class="h-64">
+                <canvas id="categoryBreakdownChart"></canvas>
+            </div>
+        </div>
+
+        <div class="xl:col-span-3 ink-box bg-newsprint p-5">
+            <div class="font-typewriter text-xs font-bold uppercase text-leather mb-1">KANAL PEMBAYARAN</div>
+            <h2 class="font-display font-bold text-lg mb-4">Omzet per Metode Bayar</h2>
+            <div class="h-64">
+                <canvas id="paymentBreakdownChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Operational Intelligence Tables -->
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <!-- Top 5 Products & Sizes -->
+        <div class="xl:col-span-7 space-y-6">
+            <div class="ink-box bg-newsprint p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <div class="font-typewriter text-xs font-bold uppercase text-bottle">PERENCANAAN PRODUKSI PABRIK</div>
+                        <h2 class="font-display font-bold text-xl">Top 5 Produk Terlaris (@d.DateRangeLabel)</h2>
+                    </div>
+                </div>
+                @if (d.TopProducts.Count == 0)
+                {
+                    <div class="ticket-stub p-5 text-center text-sm text-ink/75">
+                        Belum ada data penjualan pada rentang tanggal ini.
+                    </div>
+                }
+                else
+                {
+                    <div class="overflow-x-auto">
+                        <table class="ledger-table">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Nama Produk</th>
+                                    <th>Kategori</th>
+                                    <th class="text-center">Terjual</th>
+                                    <th class="text-right">Omzet</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var tp in d.TopProducts)
+                                {
+                                    <tr>
+                                        <td class="font-typewriter text-xs font-bold">@tp.Sku</td>
+                                        <td class="font-bold">@tp.ProductName</td>
+                                        <td class="font-typewriter text-xs">@tp.CategoryName</td>
+                                        <td class="font-typewriter font-bold text-center">@tp.PairsSold psg</td>
+                                        <td class="font-typewriter font-bold text-right">@FormatHelper.Rupiah(tp.Revenue)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            <div class="ink-box bg-cardstock p-5">
+                <div class="font-typewriter text-xs font-bold uppercase text-leather mb-2">PERMINTAAN PER UKURAN (38 – 44)</div>
+                <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                    @foreach (var sz in d.TopSizes)
+                    {
+                        <div class="border-2 border-ink bg-newsprint p-2.5 text-center">
+                            <div class="font-typewriter text-xs text-leather font-bold">Uk. @sz.Size</div>
+                            <div class="font-typewriter font-extrabold text-base mt-0.5">@sz.PairsSold</div>
+                            <div class="text-[10px] text-ink/70">pasang</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Low Stock Alerts (< 5 pairs) -->
+        <div class="xl:col-span-5 ink-box bg-newsprint p-5">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <div class="font-typewriter text-xs font-bold uppercase text-terracotta">PERINGATAN GUDANG (&lt; 5 PASANG)</div>
+                    <h2 class="font-display font-bold text-xl">Peringatan Stok Menipis</h2>
+                </div>
+                <a asp-page="/Admin/Products" class="font-typewriter text-xs font-bold underline hover:text-terracotta">Kelola Stok →</a>
+            </div>
+
+            @if (d.LowStockAlerts.Count == 0)
+            {
+                <div class="ticket-stub p-5 text-center text-sm text-bottle font-bold">
+                    Semua varian ukuran memiliki stok aman (≥ 5 pasang).
+                </div>
+            }
+            else
+            {
+                <div class="overflow-x-auto">
+                    <table class="ledger-table text-xs">
+                        <thead>
+                            <tr>
+                                <th>Produk &amp; Varian</th>
+                                <th class="text-center">Sisa</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ls in d.LowStockAlerts)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="font-typewriter font-bold text-leather">@ls.Sku</div>
+                                        <div class="font-bold">@ls.ProductName</div>
+                                        <div class="text-ink/75">Uk. @ls.Size • @ls.ColorName</div>
+                                        <div class="font-typewriter text-[10px] text-ink/70">Fisik: @ls.PhysicalStock • Ditahan: @ls.ReservedStock</div>
+                                    </td>
+                                    <td class="text-center font-typewriter font-extrabold text-terracotta">@ls.AvailableStock psg</td>
+                                    <td>
+                                        <a asp-page="/Admin/Products" asp-route-HighlightProductId="@ls.ProductId" class="btn-press btn-paper px-2.5 py-1 text-[11px] font-typewriter uppercase">
+                                            Tambah Stok
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- B2B Tempo Near-Due Alerts -->
+    @if (d.NearDueTempoOrders.Count > 0)
+    {
+        <div class="ink-box bg-cardstock border-terracotta p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div>
+                    <div class="font-typewriter text-xs font-bold uppercase text-terracotta">PENGAWASAN PIUTANG MITRA KODIAN</div>
+                    <h2 class="font-display font-bold text-xl">Tagihan Tempo B2B Mendekati Jatuh Tempo (≤ 2 Hari)</h2>
+                </div>
+                <a asp-page="/Admin/Orders" class="btn-press btn-terracotta px-3.5 py-1.5 text-xs font-typewriter uppercase">
+                    Kelola di Buku Faktur →
+                </a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="ledger-table text-xs">
+                    <thead>
+                        <tr>
+                            <th>No. Faktur</th>
+                            <th>Mitra Toko</th>
+                            <th>Jatuh Tempo</th>
+                            <th>Peringatan</th>
+                            <th class="text-right">Tagihan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in d.NearDueTempoOrders)
+                        {
+                            <tr>
+                                <td class="font-typewriter font-bold text-leather">@t.InvoiceNumber</td>
+                                <td>
+                                    <div class="font-bold">@(t.ShopName ?? t.CustomerName)</div>
+                                    <div class="text-ink/75">@t.ShippingCity • @t.CustomerPhone</div>
+                                </td>
+                                <td class="font-typewriter font-bold">@(t.TempoDueDate.HasValue ? FormatHelper.WibDateShort(t.TempoDueDate.Value) : "-")</td>
+                                <td>
+                                    <span class="inline-block font-typewriter text-[10px] font-bold bg-terracotta text-newsprint border border-ink px-2 py-0.5">
+                                        JATUH TEMPO
+                                    </span>
+                                </td>
+                                <td class="text-right font-typewriter font-extrabold">@FormatHelper.Rupiah(t.GrandTotal)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const payload = @Html.Raw(chartPayload);
+            window.renderKaryaJayaAdminCharts(payload);
+        });
+    </script>
+}

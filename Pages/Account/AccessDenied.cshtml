@@ -1,0 +1,21 @@
+@page
+@model KaryaJayaFootwear.Pages.Account.AccessDeniedModel
+@{
+    ViewData["Title"] = "Akses Ditolak";
+}
+
+<div class="max-w-lg mx-auto px-4 py-14">
+    <div class="ink-box-lg bg-cardstock p-8 text-center">
+        <div class="flex justify-center mb-4">
+            @Html.Raw(RetroSvgHelper.RenderRubberStampSvg("TATA USAHA PABRIK", "AKSES DITOLAK", "WEWENANG TERBATAS", "#C85A32", -4))
+        </div>
+        <h1 class="font-display font-extrabold text-3xl mb-2">Halaman Khusus Pihak Berwenang</h1>
+        <p class="text-sm text-ink/85 mb-6">
+            Maaf, Anda tidak memiliki izin untuk membuka halaman atau faktur ini. Silakan masuk dengan akun pemilik faktur atau Administrator Pabrik.
+        </p>
+        <div class="flex flex-wrap justify-center gap-3">
+            <a asp-page="/Index" class="btn-press btn-leather px-5 py-2.5 text-xs font-typewriter uppercase">Kembali ke Beranda</a>
+            <a asp-page="/Account/Login" class="btn-press btn-paper px-5 py-2.5 text-xs font-typewriter uppercase">Masuk Akun Lain</a>
+        </div>
+    </div>
+</div>

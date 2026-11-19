@@ -1,0 +1,238 @@
+@page
+@model KaryaJayaFootwear.Pages.Checkout.IndexModel
+@{
+    ViewData["Title"] = "Pembuatan Faktur & Pembayaran";
+    bool canUseCargo = Model.IsApprovedB2B || Model.Cart.TotalPairs >= 6;
+}
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="border-b-2 border-ink pb-4 mb-6">
+        <div class="font-typewriter text-xs font-bold uppercase text-terracotta">PENERBITAN FAKTUR PENJUALAN RESMI</div>
+        <h1 class="font-display font-extrabold text-3xl sm:text-4xl">Pengiriman &amp; Pembayaran Pabrik</h1>
+    </div>
+
+    @if (Model.IsAdminUser)
+    {
+        <div class="ink-box bg-terracotta text-newsprint p-5 mb-6 font-bold">
+            Akun Administrator Pabrik tidak dapat mengajukan pesanan pelanggan. Silakan keluar dan masuk sebagai Pembeli Eceran atau Mitra B2B.
+        </div>
+    }
+
+    @if (Model.IsPendingB2B)
+    {
+        <div class="ticket-stub p-4 mb-6 border-terracotta">
+            <div class="font-typewriter text-xs font-bold uppercase text-terracotta mb-1">STATUS KEMITRAAN: MENUNGGU VERIFIKASI ADMIN</div>
+            <p class="text-sm">
+                Akun Mitra Toko Anda sedang diperiksa oleh Admin Pabrik. Pesanan saat ini menggunakan harga eceran dan belum dapat mengakses Tempo Mitra 14 Hari.
+            </p>
+        </div>
+    }
+
+    <form method="post" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-7 space-y-6">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="ink-box bg-cardstock border-terracotta p-4 text-sm text-terracotta font-bold">
+                    <div asp-validation-summary="All"></div>
+                </div>
+            }
+
+            <!-- Recipient & Address -->
+            <div class="ink-box bg-newsprint p-6 space-y-4">
+                <div class="font-typewriter text-xs font-bold uppercase tracking-widest border-b-2 border-ink pb-2">
+                    1. Identitas Pemesan &amp; Alamat Tujuan
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label asp-for="Input.CustomerName" class="block font-typewriter text-xs font-bold uppercase mb-1">Nama Lengkap Penerima *</label>
+                        <input asp-for="Input.CustomerName" class="input-ledger" placeholder="Contoh: Budi Santoso" />
+                        <span asp-validation-for="Input.CustomerName" class="text-xs text-terracotta font-bold"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Input.CustomerPhone" class="block font-typewriter text-xs font-bold uppercase mb-1">No. WhatsApp / Telepon *</label>
+                        <input asp-for="Input.CustomerPhone" class="input-ledger" placeholder="0812xxxxxxxx" />
+                        <span asp-validation-for="Input.CustomerPhone" class="text-xs text-terracotta font-bold"></span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label asp-for="Input.CustomerEmail" class="block font-typewriter text-xs font-bold uppercase mb-1">Alamat Email (Untuk Faktur) *</label>
+                        <input asp-for="Input.CustomerEmail" class="input-ledger" placeholder="nama@email.com" />
+                        <span asp-validation-for="Input.CustomerEmail" class="text-xs text-terracotta font-bold"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Input.ShippingCity" class="block font-typewriter text-xs font-bold uppercase mb-1">Kota / Kabupaten Tujuan *</label>
+                        <input asp-for="Input.ShippingCity" class="input-ledger" placeholder="Contoh: Kab. Garut / Surabaya" />
+                        <span asp-validation-for="Input.ShippingCity" class="text-xs text-terracotta font-bold"></span>
+                    </div>
+                </div>
+
+                @if (Model.IsApprovedB2B)
+                {
+                    <div>
+                        <label asp-for="Input.ShopName" class="block font-typewriter text-xs font-bold uppercase mb-1 text-bottle">Nama Toko Mitra B2B</label>
+                        <input asp-for="Input.ShopName" class="input-ledger" />
+                    </div>
+                }
+
+                <div>
+                    <label asp-for="Input.ShippingAddress" class="block font-typewriter text-xs font-bold uppercase mb-1">Alamat Lengkap Pengiriman *</label>
+                    <textarea asp-for="Input.ShippingAddress" rows="2" class="input-ledger" placeholder="Nama jalan, nomor kios/rumah, kecamatan, kode pos"></textarea>
+                    <span asp-validation-for="Input.ShippingAddress" class="text-xs text-terracotta font-bold"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Input.Notes" class="block font-typewriter text-xs font-bold uppercase mb-1">Catatan Gudang (Opsional)</label>
+                    <input asp-for="Input.Notes" class="input-ledger" placeholder="Contoh: Packing karung dobel untuk pengiriman luar Jawa" />
+                </div>
+            </div>
+
+            <!-- Logistics Selector -->
+            <div class="ink-box bg-newsprint p-6 space-y-3">
+                <div class="font-typewriter text-xs font-bold uppercase tracking-widest border-b-2 border-ink pb-2">
+                    2. Pilihan Armada Pengiriman Pabrik
+                </div>
+
+                <label class="flex items-start gap-3 p-3 border-2 border-ink bg-cardstock cursor-pointer">
+                    <input type="radio" asp-for="Input.ShippingMethod" value="@ShippingMethod.RegulerKurir" data-ship-cost="@((long)Model.RegularShippingCost)" class="mt-1 accent-[#4A2E1B]" />
+                    <div class="flex-1">
+                        <div class="flex justify-between font-bold text-sm">
+                            <span>Kurir Reguler (Paket Eceran)</span>
+                            <span class="font-typewriter text-terracotta">@FormatHelper.Rupiah(Model.RegularShippingCost)</span>
+                        </div>
+                        <p class="text-xs text-ink/75 mt-0.5">Cocok untuk pembelian eceran 1–5 pasang ke rumah atau kantor.</p>
+                    </div>
+                </label>
+
+                <label class="flex items-start gap-3 p-3 border-2 border-ink @(canUseCargo ? "bg-cardstock cursor-pointer" : "bg-cardstock/40 opacity-60 cursor-not-allowed")">
+                    <input type="radio" asp-for="Input.ShippingMethod" value="@ShippingMethod.EkspedisiKargoTruk" data-ship-cost="@((long)Model.CargoShippingCost)" disabled="@(!canUseCargo)" class="mt-1 accent-[#2E4A3E]" />
+                    <div class="flex-1">
+                        <div class="flex justify-between font-bold text-sm">
+                            <span>Ekspedisi Kargo Truk (Partai Kodian B2B)</span>
+                            <span class="font-typewriter text-bottle">@FormatHelper.Rupiah(Model.CargoShippingCost)</span>
+                        </div>
+                        <p class="text-xs text-ink/75 mt-0.5">
+                            @if (canUseCargo)
+                            {
+                                <span>Tarif khusus muatan karung/dus kodian via ekspedisi darat antarkota.</span>
+                            }
+                            else
+                            {
+                                <span>Tersedia khusus Mitra B2B atau pesanan minimal 6 pasang.</span>
+                            }
+                        </p>
+                    </div>
+                </label>
+            </div>
+
+            <!-- Payment Method Selector -->
+            <div class="ink-box bg-newsprint p-6 space-y-3">
+                <div class="font-typewriter text-xs font-bold uppercase tracking-widest border-b-2 border-ink pb-2">
+                    3. Cara Pembayaran Resmi
+                </div>
+
+                <label class="flex items-start gap-3 p-3 border-2 border-ink bg-cardstock cursor-pointer">
+                    <input type="radio" asp-for="Input.PaymentMethod" value="@PaymentMethod.MidtransOnline" class="mt-1 accent-[#4A2E1B]" />
+                    <div class="flex-1">
+                        <div class="font-bold text-sm">Pembayaran Online — Midtrans Snap (QRIS / Virtual Account / Alfamart &amp; Indomaret)</div>
+                        <p class="text-xs text-ink/75 mt-0.5">Verifikasi otomatis. Setelah faktur terbit, Anda dapat membuka jendela bayar Midtrans Snap.</p>
+                    </div>
+                </label>
+
+                <label class="flex items-start gap-3 p-3 border-2 border-ink bg-cardstock cursor-pointer">
+                    <input type="radio" asp-for="Input.PaymentMethod" value="@PaymentMethod.COD" class="mt-1 accent-[#4A2E1B]" />
+                    <div class="flex-1">
+                        <div class="font-bold text-sm">COD — Bayar Tunai di Tempat ke Kurir Pabrik</div>
+                        <p class="text-xs text-ink/75 mt-0.5">Pesanan langsung masuk tahap pengemasan dan dibayar tunai saat barang tiba.</p>
+                    </div>
+                </label>
+
+                @if (Model.IsApprovedB2B)
+                {
+                    <label class="flex items-start gap-3 p-3 border-2 border-ink bg-[#DCE7DF] cursor-pointer">
+                        <input type="radio" asp-for="Input.PaymentMethod" value="@PaymentMethod.TempoB2B" class="mt-1 accent-[#2E4A3E]" />
+                        <div class="flex-1">
+                            <div class="font-bold text-sm text-bottle">★ Tempo Mitra B2B (Jatuh Tempo 14 Hari)</div>
+                            <p class="text-xs text-ink/80 mt-0.5">Khusus Mitra Toko B2B terverifikasi. Barang langsung diproses &amp; dikirim, pelunasan maksimal 14 hari dari tanggal faktur.</p>
+                        </div>
+                    </label>
+                }
+            </div>
+        </div>
+
+        <!-- Order Summary & Submit -->
+        <aside class="lg:col-span-5 ink-box bg-cardstock p-6 sticky top-24">
+            <div class="font-typewriter text-xs font-bold uppercase tracking-widest border-b-2 border-ink pb-2 mb-4">
+                Ikhtisar Faktur Sementara
+            </div>
+
+            <div class="space-y-2 max-h-60 overflow-y-auto pr-1 mb-4 border-b border-dashed border-ink pb-3">
+                @foreach (var item in Model.Cart.Items)
+                {
+                    <div class="flex justify-between gap-2 text-xs">
+                        <div>
+                            <div class="font-bold">@item.ProductName</div>
+                            <div class="font-typewriter text-ink/70">Uk.@item.Size • @item.ColorName × @item.Quantity psg</div>
+                        </div>
+                        <div class="font-typewriter font-bold shrink-0">@FormatHelper.Rupiah(item.LineAppliedTotal)</div>
+                    </div>
+                }
+            </div>
+
+            <div class="space-y-2 text-sm mb-5">
+                <div class="flex justify-between">
+                    <span>Total Pasang</span>
+                    <span class="font-typewriter font-bold">@Model.Cart.TotalPairs Pasang</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Subtotal Eceran</span>
+                    <span class="font-typewriter">@FormatHelper.Rupiah(Model.Cart.GrossRetailSubtotal)</span>
+                </div>
+                @if (Model.Cart.DiscountAmount > 0)
+                {
+                    <div class="flex justify-between text-bottle font-bold">
+                        <span>Potongan Kodian (@Model.Cart.DiscountPercent.ToString("0")%)</span>
+                        <span class="font-typewriter">- @FormatHelper.Rupiah(Model.Cart.DiscountAmount)</span>
+                    </div>
+                }
+                <div class="flex justify-between">
+                    <span>Ongkos Kirim</span>
+                    <span id="checkout-ship-display" class="font-typewriter font-bold">@FormatHelper.Rupiah(Model.Input.ShippingMethod == ShippingMethod.EkspedisiKargoTruk ? Model.CargoShippingCost : Model.RegularShippingCost)</span>
+                </div>
+                <div class="flex justify-between text-xl font-extrabold pt-3 border-t-2 border-ink">
+                    <span>Total Tagihan</span>
+                    <span id="checkout-grand-display" class="font-typewriter text-terracotta">
+                        @FormatHelper.Rupiah(Model.Cart.NetSubtotal + (Model.Input.ShippingMethod == ShippingMethod.EkspedisiKargoTruk ? Model.CargoShippingCost : Model.RegularShippingCost))
+                    </span>
+                </div>
+            </div>
+
+            <button type="submit" disabled="@Model.IsAdminUser" class="btn-press btn-leather w-full py-3.5 text-sm font-typewriter uppercase">
+                Terbitkan Faktur Penjualan Resmi →
+            </button>
+        </aside>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const netSubtotal = @((long)Model.Cart.NetSubtotal);
+            const shipDisp = document.getElementById('checkout-ship-display');
+            const grandDisp = document.getElementById('checkout-grand-display');
+            const radios = document.querySelectorAll('input[name="Input.ShippingMethod"]');
+
+            function recalc() {
+                const checked = document.querySelector('input[name="Input.ShippingMethod"]:checked');
+                const ship = checked ? Number(checked.getAttribute('data-ship-cost')) : 0;
+                shipDisp.textContent = 'Rp ' + ship.toLocaleString('id-ID');
+                grandDisp.textContent = 'Rp ' + (netSubtotal + ship).toLocaleString('id-ID');
+            }
+
+            radios.forEach(r => r.addEventListener('change', recalc));
+            recalc();
+        })();
+    </script>
+}

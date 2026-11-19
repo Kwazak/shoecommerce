@@ -1,0 +1,129 @@
+@{
+    var currentPath = Context.Request.Path.Value ?? string.Empty;
+    bool IsActive(string segment) => currentPath.Equals(segment, StringComparison.OrdinalIgnoreCase);
+}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — Kantor Tata Usaha Pabrik Karya Jaya</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        newsprint: '#F4EFE6',
+                        cardstock: '#EAE0D0',
+                        leather: '#4A2E1B',
+                        terracotta: '#C85A32',
+                        bottle: '#2E4A3E',
+                        ink: '#231F20'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="~/css/vintage.css" asp-append-version="true" />
+</head>
+<body class="min-h-screen bg-newsprint text-ink flex flex-col">
+    <header class="no-print bg-leather text-newsprint border-b-4 border-ink px-5 py-3 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <span class="bg-terracotta text-newsprint font-typewriter font-bold text-xs px-2.5 py-1 border-2 border-ink">
+                TATA USAHA PABRIK
+            </span>
+            <div>
+                <div class="font-display font-extrabold text-lg leading-tight">Buku Besar Pabrik Karya Jaya 1978</div>
+                <div class="font-typewriter text-[11px] text-cardstock">Administrasi Penjualan, Gudang Ukuran &amp; Mitra Kodian</div>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <a asp-page="/Index" class="btn-press btn-paper px-3 py-1.5 text-xs font-typewriter uppercase">
+                ← Lihat Toko Publik
+            </a>
+            <form method="post" asp-page="/Account/Logout">
+                <button type="submit" class="btn-press btn-terracotta px-3 py-1.5 text-xs font-typewriter uppercase">
+                    Keluar Admin
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <div class="flex-1 flex flex-col lg:flex-row">
+        <!-- Vintage Ledger Sidebar -->
+        <aside class="no-print w-full lg:w-64 bg-cardstock border-b-2 lg:border-b-0 lg:border-r-2 border-ink p-4 shrink-0">
+            <div class="mb-4 pb-3 border-b-2 border-ink">
+                <div class="font-typewriter text-[10px] uppercase tracking-widest text-leather font-bold mb-1.5">
+                    Akun Aktif
+                </div>
+                <partial name="_UserProfileMenu" />
+            </div>
+
+            <div class="font-typewriter text-[11px] uppercase tracking-widest text-leather font-bold mb-3 pb-2 border-b border-dashed border-ink">
+                Daftar Buku Catatan
+            </div>
+            <nav class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-2">
+                <a asp-page="/Admin/Index" class="px-3 py-2.5 border-2 border-ink font-bold text-sm flex items-center justify-between @(IsActive("/Admin") || IsActive("/Admin/Index") ? "bg-leather text-newsprint shadow-[3px_3px_0px_#231F20]" : "bg-newsprint hover:bg-white")">
+                    <span>Ikhtisar Penjualan</span>
+                    <span class="font-typewriter text-xs">01</span>
+                </a>
+                <a asp-page="/Admin/Orders" class="px-3 py-2.5 border-2 border-ink font-bold text-sm flex items-center justify-between @(IsActive("/Admin/Orders") ? "bg-leather text-newsprint shadow-[3px_3px_0px_#231F20]" : "bg-newsprint hover:bg-white")">
+                    <span>Faktur &amp; Pengiriman</span>
+                    <span class="font-typewriter text-xs">02</span>
+                </a>
+                <a asp-page="/Admin/Products" class="px-3 py-2.5 border-2 border-ink font-bold text-sm flex items-center justify-between @(IsActive("/Admin/Products") ? "bg-leather text-newsprint shadow-[3px_3px_0px_#231F20]" : "bg-newsprint hover:bg-white")">
+                    <span>Katalog &amp; Stok Gudang</span>
+                    <span class="font-typewriter text-xs">03</span>
+                </a>
+                <a asp-page="/Admin/Partners" class="px-3 py-2.5 border-2 border-ink font-bold text-sm flex items-center justify-between @(IsActive("/Admin/Partners") ? "bg-leather text-newsprint shadow-[3px_3px_0px_#231F20]" : "bg-newsprint hover:bg-white")">
+                    <span>Verifikasi Mitra B2B</span>
+                    <span class="font-typewriter text-xs">04</span>
+                </a>
+                <a asp-page="/Admin/Discounts" class="px-3 py-2.5 border-2 border-ink font-bold text-sm flex items-center justify-between @(IsActive("/Admin/Discounts") ? "bg-leather text-newsprint shadow-[3px_3px_0px_#231F20]" : "bg-newsprint hover:bg-white")">
+                    <span>Aturan Diskon Kodian</span>
+                    <span class="font-typewriter text-xs">05</span>
+                </a>
+                <a asp-page="/Admin/WarehouseScan" class="px-3 py-2.5 border-2 border-ink font-bold text-sm flex items-center justify-between @(IsActive("/Admin/WarehouseScan") ? "bg-bottle text-newsprint shadow-[3px_3px_0px_#231F20]" : "bg-newsprint hover:bg-white")">
+                    <span>Scan Gudang &amp; Resi</span>
+                    <span class="font-typewriter text-xs">06</span>
+                </a>
+            </nav>
+
+            <div class="mt-6 ticket-stub p-3 text-xs">
+                <div class="font-typewriter font-bold uppercase text-leather mb-1">Pengingat Pabrik</div>
+                <p class="text-ink/80 leading-relaxed">
+                    Setiap persetujuan Mitra B2B langsung mengaktifkan potongan harga kodian dan Tempo 14 Hari saat checkout.
+                </p>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-5 lg:p-7 overflow-x-hidden">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="vintage-toast-container" class="no-print fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
+
+    <script src="~/js/storefront.js" asp-append-version="true"></script>
+    <script src="~/js/admin-charts.js" asp-append-version="true"></script>
+    @if (TempData["ToastSuccess"] is string okMsg)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', () => window.showStampToast(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(okMsg)), 'success'));
+        </script>
+    }
+    @if (TempData["ToastError"] is string errMsg)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', () => window.showStampToast(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(errMsg)), 'error'));
+        </script>
+    }
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

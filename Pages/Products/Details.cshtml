@@ -1,0 +1,508 @@
+@page "{id:int}"
+@using System.Text.Json
+@model KaryaJayaFootwear.Pages.Products.DetailsModel
+@{
+    ViewData["Title"] = Model.Product.Name;
+    var firstColor = Model.Colorways.FirstOrDefault();
+    var variantsJson = JsonSerializer.Serialize(Model.Product.Variants.Select(v => new
+    {
+        id = v.Id,
+        size = v.Size,
+        colorName = v.ColorName,
+        colorHex = v.ColorHex,
+        stock = v.AvailableStock
+    }));
+    var tiersJson = JsonSerializer.Serialize(Model.ActiveTiers.Select(t => new
+    {
+        name = t.TierName,
+        min = t.MinPairs,
+        max = t.MaxPairs,
+        discount = t.DiscountPercent
+    }));
+}
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div class="font-typewriter text-xs flex items-center gap-2">
+            <a asp-page="/Index" class="hover:underline">Beranda</a>
+            <span>/</span>
+            <a asp-page="/Products/Index" class="hover:underline">Katalog</a>
+            <span>/</span>
+            <a asp-page="/Products/Index" asp-route-Category="@Model.Product.Category" class="hover:underline">@Model.Product.Category.ToIndonesianLabel()</a>
+            <span>/</span>
+            <span class="font-bold text-terracotta">@Model.Product.Sku</span>
+        </div>
+
+        @if (!Model.IsApprovedB2B)
+        {
+            <a asp-page="/Products/Details" asp-route-id="@Model.Product.Id" asp-route-SimulateB2B="@(!Model.SimulateB2B)"
+               class="btn-press @(Model.SimulateB2B ? "btn-bottle" : "btn-paper") px-3.5 py-1.5 text-xs font-typewriter uppercase">
+                @(Model.SimulateB2B ? "★ Mode Simulasi Harga Kodian B2B: AKTIF" : "Simulasi Harga Kodian B2B")
+            </a>
+        }
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- Left: Retro SVG Plate + Specs -->
+        <div class="lg:col-span-6 space-y-6">
+            <div class="ink-box-lg bg-newsprint p-5 relative">
+                <div class="flex items-center justify-between border-b-2 border-ink pb-2 mb-4 font-typewriter text-xs font-bold">
+                    <span>GAMBAR TEKNIS PABRIK • @Model.Product.Sku</span>
+                    <span class="bg-leather text-newsprint px-2 py-0.5 uppercase">@Model.Product.Category.ToIndonesianLabel()</span>
+                </div>
+                <div id="product-svg-stage" class="bg-cardstock border-2 border-ink p-4">
+                    <partial name="_ProductVisualFrame" model="@((Model.Product.ImageUrl, Model.Product.SvgIllustrationKey, firstColor.ColorHex ?? "#4A2E1B", Model.Product.Name, "h-64"))" />
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-3 text-xs">
+                    <div class="border border-ink bg-cardstock p-2.5">
+                        <div class="font-typewriter text-[10px] font-bold text-leather uppercase">Bahan Atas</div>
+                        <div class="font-semibold mt-0.5">@Model.Product.UpperMaterial</div>
+                    </div>
+                    <div class="border border-ink bg-cardstock p-2.5">
+                        <div class="font-typewriter text-[10px] font-bold text-leather uppercase">Bahan Sol</div>
+                        <div class="font-semibold mt-0.5">@Model.Product.SoleMaterial</div>
+                    </div>
+                    <div class="border border-ink bg-cardstock p-2.5">
+                        <div class="font-typewriter text-[10px] font-bold text-leather uppercase">Konstruksi</div>
+                        <div class="font-semibold mt-0.5">@Model.Product.ConstructionMethod</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indonesian Sizing Chart (38-44) -->
+            <div class="ink-box bg-cardstock p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <div class="font-typewriter text-xs font-bold uppercase tracking-widest text-leather">
+                        PANDUAN UKURAN KAKI INDONESIA (38 – 44)
+                    </div>
+                    <a asp-page="/Tools/FootRuler" class="btn-press btn-paper px-2.5 py-1 text-[11px] font-typewriter uppercase">
+                        Cetak Penggaris Ukur Kaki 1:1
+                    </a>
+                </div>
+                <table class="ledger-table text-xs font-typewriter">
+                    <thead>
+                        <tr>
+                            <th>No. Ukuran</th>
+                            <th>38</th>
+                            <th>39</th>
+                            <th>40</th>
+                            <th>41</th>
+                            <th>42</th>
+                            <th>43</th>
+                            <th>44</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="font-bold">Panjang Insole (cm)</td>
+                            <td>24.0</td>
+                            <td>24.5</td>
+                            <td>25.5</td>
+                            <td>26.0</td>
+                            <td>27.0</td>
+                            <td>27.5</td>
+                            <td>28.5</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Right: Variant Selector, Add to Laci Kasir & Live B2B Calculator -->
+        <div class="lg:col-span-6 space-y-6">
+            <div class="ink-box bg-newsprint p-6">
+                <div class="font-typewriter text-xs font-bold uppercase text-terracotta mb-1">@Model.Product.Sku</div>
+                <h1 class="font-display font-extrabold text-3xl sm:text-4xl mb-2">@Model.Product.Name</h1>
+                <p class="text-sm text-ink/85 leading-relaxed mb-4">@Model.Product.Description</p>
+
+                <div class="bg-cardstock border-2 border-ink p-4 mb-5 flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <div class="font-typewriter text-[11px] uppercase font-bold text-ink/70">Harga Eceran Pabrik</div>
+                        <div class="font-typewriter font-extrabold text-2xl text-terracotta">@FormatHelper.Rupiah(Model.Product.RetailPrice) <span class="text-xs font-normal text-ink">/ pasang</span></div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-typewriter text-[11px] uppercase font-bold text-bottle">Tarif Mitra B2B (≥ 2 Kodi)</div>
+                        @{
+                            var bestTier = Model.ActiveTiers.OrderByDescending(t => t.DiscountPercent).FirstOrDefault();
+                            var bestPrice = bestTier is not null
+                                ? Math.Round(Model.Product.RetailPrice * (1m - bestTier.DiscountPercent / 100m) / 100m) * 100m
+                                : Model.Product.RetailPrice;
+                        }
+                        <div class="font-typewriter font-extrabold text-xl text-bottle">@FormatHelper.Rupiah(bestPrice)</div>
+                    </div>
+                </div>
+
+                <!-- Colorway Selector -->
+                <div class="mb-5">
+                    <div class="font-typewriter text-xs font-bold uppercase mb-2">1. Pilih Warna Pabrik: <span id="selected-color-label" class="text-leather">@firstColor.ColorName</span></div>
+                    <div class="flex flex-wrap gap-2.5" id="color-selector">
+                        @for (int i = 0; i < Model.Colorways.Count; i++)
+                        {
+                            var c = Model.Colorways[i];
+                            <button type="button"
+                                    data-color-btn="@c.ColorName"
+                                    data-color-hex="@c.ColorHex"
+                                    class="px-3 py-2 border-2 border-ink flex items-center gap-2 text-xs font-bold transition-all @(i == 0 ? "bg-leather text-newsprint shadow-[2px_2px_0px_#231F20]" : "bg-cardstock text-ink")">
+                                <span class="w-3.5 h-3.5 border border-ink inline-block" style="background:@c.ColorHex"></span>
+                                <span>@c.ColorName</span>
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Size Selector -->
+                <div class="mb-5">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-typewriter text-xs font-bold uppercase">2. Pilih Ukuran (38–44):</span>
+                        <span id="variant-stock-badge" class="font-typewriter text-xs font-bold text-bottle">Memuat stok...</span>
+                    </div>
+                    <div id="size-selector" class="grid grid-cols-4 sm:grid-cols-7 gap-2"></div>
+                </div>
+
+                <!-- Quantity + Add to Laci Kasir -->
+                <form method="post" asp-page-handler="AddToCart" id="add-to-cart-form" class="space-y-4 pt-2 border-t-2 border-dashed border-ink">
+                    <input type="hidden" name="variantId" id="selected-variant-id" value="" />
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div>
+                            <label class="block font-typewriter text-xs font-bold uppercase mb-1">3. Jumlah Pasang</label>
+                            <div class="flex items-center border-2 border-ink bg-cardstock">
+                                <button type="button" id="qty-dec" class="px-3 py-2 font-typewriter font-bold hover:bg-leather hover:text-newsprint">-</button>
+                                <input type="number" name="quantity" id="qty-input" value="1" min="1" class="w-16 text-center font-typewriter font-bold py-2 bg-newsprint border-x-2 border-ink focus:outline-none" />
+                                <button type="button" id="qty-inc" class="px-3 py-2 font-typewriter font-bold hover:bg-leather hover:text-newsprint">+</button>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 min-w-[200px] pt-5">
+                            <button type="submit" id="btn-add-laci" class="btn-press btn-leather w-full py-3 px-5 text-sm font-typewriter uppercase">
+                                Masukkan ke Laci Kasir →
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Live B2B Quantity-Tier Savings Calculator -->
+            <div class="ink-box bg-cardstock p-5">
+                <div class="flex items-center justify-between border-b-2 border-ink pb-2 mb-3">
+                    <div>
+                        <div class="font-typewriter text-[11px] font-bold uppercase text-bottle">KALKULATOR KODIAN MITRA B2B</div>
+                        <h2 class="font-display font-extrabold text-xl">Hitung Penghematan Partai Grosir</h2>
+                    </div>
+                    <span class="font-typewriter text-xs font-bold bg-newsprint border border-ink px-2 py-0.5">SIMULASI</span>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between text-sm">
+                        <label for="calc-pairs-range" class="font-bold">Simulasi Jumlah Pesanan:</label>
+                        <span id="calc-pairs-display" class="font-typewriter font-bold text-lg text-leather">12 Pasang</span>
+                    </div>
+                    <input id="calc-pairs-range" type="range" min="1" max="48" value="12" class="w-full accent-[#4A2E1B] cursor-pointer" />
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 font-typewriter text-xs">
+                        <div class="bg-newsprint border-2 border-ink p-2.5">
+                            <div class="text-ink/70 uppercase text-[10px]">Tingkat Diskon</div>
+                            <div id="calc-tier-label" class="font-bold text-bottle text-sm mt-0.5">25% OFF</div>
+                        </div>
+                        <div class="bg-newsprint border-2 border-ink p-2.5">
+                            <div class="text-ink/70 uppercase text-[10px]">Harga / Pasang</div>
+                            <div id="calc-unit-price" class="font-bold text-ink text-sm mt-0.5">Rp 0</div>
+                        </div>
+                        <div class="bg-newsprint border-2 border-ink p-2.5 col-span-2 sm:col-span-1">
+                            <div class="text-ink/70 uppercase text-[10px]">Total Hemat</div>
+                            <div id="calc-savings" class="font-bold text-terracotta text-sm mt-0.5">Rp 0</div>
+                        </div>
+                    </div>
+                    @if (!Model.IsApprovedB2B)
+                    {
+                        <div class="text-xs text-ink/80 pt-1">
+                            Potongan ini otomatis aktif saat Anda <a asp-page="/Account/Register" asp-route-type="PartnerB2B" class="font-bold underline text-bottle">mendaftar sebagai Mitra Toko B2B</a> dan disetujui Admin Pabrik.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.ShowB2BMatrix)
+    {
+        <!-- B2B Size-Series Accounting Ledger Matrix (Matriks Buku Kas Seri Ukuran) -->
+        <section class="mt-10 ink-box-lg bg-cardstock p-6">
+            <div class="double-ruled bg-newsprint p-5">
+                <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-ink pb-4 mb-5">
+                    <div>
+                        <div class="font-typewriter text-xs font-bold uppercase tracking-widest text-bottle">
+                            PESANAN PARTAI GROSIR • @(Model.IsApprovedB2B ? "MITRA B2B TERVERIFIKASI" : "MODE SIMULASI KODIAN")
+                        </div>
+                        <h2 class="font-display font-extrabold text-2xl sm:text-3xl">Matriks Buku Kas Seri Ukuran (38–44)</h2>
+                        <p class="text-xs text-ink/80 mt-1">
+                            Isi jumlah pasang per warna dan nomor ukuran sekaligus untuk dimasukkan ke Laci Kasir Grosir.
+                        </p>
+                    </div>
+                    <button type="button" id="btn-fill-seri-standar" class="btn-press btn-paper px-4 py-2 text-xs font-typewriter uppercase">
+                        Isi 1 Seri Standar (39–43)
+                    </button>
+                </div>
+
+                <form method="post" asp-page-handler="AddBatch" asp-route-id="@Model.Product.Id" id="b2b-matrix-form">
+                    <input type="hidden" name="simulateB2B" value="@(Model.SimulateB2B ? "true" : "false")" />
+                    <div class="overflow-x-auto border-2 border-ink">
+                        <table class="ledger-table">
+                            <thead>
+                                <tr>
+                                    <th>Warna Pabrik</th>
+                                    @for (int sz = 38; sz <= 44; sz++)
+                                    {
+                                        <th class="text-center">Uk. @sz</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int cIdx = 0; cIdx < Model.Colorways.Count; cIdx++)
+                                {
+                                    var color = Model.Colorways[cIdx];
+                                    bool isPrimaryColor = cIdx == 0;
+                                    <tr>
+                                        <td class="whitespace-nowrap">
+                                            <span class="inline-flex items-center gap-2 font-bold text-sm">
+                                                <span class="w-3.5 h-3.5 border border-ink inline-block" style="background:@color.ColorHex"></span>
+                                                <span>@color.ColorName</span>
+                                            </span>
+                                            @if (isPrimaryColor)
+                                            {
+                                                <div class="font-typewriter text-[10px] text-leather font-bold uppercase mt-0.5">Warna Utama</div>
+                                            }
+                                        </td>
+                                        @for (int sz = 38; sz <= 44; sz++)
+                                        {
+                                            var variant = Model.Product.Variants.FirstOrDefault(v => v.ColorName == color.ColorName && v.Size == sz);
+                                            <td class="text-center align-top">
+                                                @if (variant is not null && variant.AvailableStock > 0)
+                                                {
+                                                    <input type="number"
+                                                           name="variantQuantities[@variant.Id]"
+                                                           value="0"
+                                                           min="0"
+                                                           max="@variant.AvailableStock"
+                                                           data-matrix-qty
+                                                           data-primary="@(isPrimaryColor ? "true" : "false")"
+                                                           data-size="@sz"
+                                                           data-max="@variant.AvailableStock"
+                                                           class="input-ledger !w-16 mx-auto text-center font-typewriter font-bold py-1 text-sm" />
+                                                    <div class="font-typewriter text-[10px] text-ink/75 mt-1">Stok: @variant.AvailableStock</div>
+                                                }
+                                                else
+                                                {
+                                                    <input type="number" value="0" disabled class="input-ledger !w-16 mx-auto text-center font-typewriter py-1 text-sm bg-cardstock/60 text-ink/40 cursor-not-allowed" />
+                                                    <div class="font-typewriter text-[10px] font-bold text-terracotta mt-1">HABIS</div>
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-5 flex flex-wrap items-center justify-between gap-4 pt-3 border-t-2 border-dashed border-ink">
+                        <div class="font-typewriter text-sm">
+                            Total Dipilih di Matriks:
+                            <span id="matrix-total-pairs" class="font-extrabold text-lg text-bottle ml-1">0 Pasang</span>
+                        </div>
+                        <button type="submit" class="btn-press btn-terracotta px-6 py-3 text-xs sm:text-sm font-typewriter uppercase">
+                            Masukkan Semua ke Keranjang Grosir →
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const variants = @Html.Raw(variantsJson);
+            const tiers = @Html.Raw(tiersJson);
+            const retailPrice = @((long)Model.Product.RetailPrice);
+
+            let selectedColor = variants.length ? variants[0].colorName : '';
+            let selectedVariant = null;
+
+            const colorBtns = document.querySelectorAll('[data-color-btn]');
+            const sizeWrap = document.getElementById('size-selector');
+            const stockBadge = document.getElementById('variant-stock-badge');
+            const colorLabel = document.getElementById('selected-color-label');
+            const variantInput = document.getElementById('selected-variant-id');
+            const qtyInput = document.getElementById('qty-input');
+            const addBtn = document.getElementById('btn-add-laci');
+            const svgStage = document.getElementById('product-svg-stage');
+
+            function renderSizes() {
+                const matching = variants.filter(v => v.colorName === selectedColor);
+                sizeWrap.innerHTML = '';
+
+                if (!selectedVariant || selectedVariant.colorName !== selectedColor) {
+                    selectedVariant = matching.find(v => v.stock > 0) || matching[0] || null;
+                }
+
+                matching.forEach(v => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    const isSelected = selectedVariant && selectedVariant.id === v.id;
+                    const out = v.stock <= 0;
+                    btn.className = 'border-2 border-ink py-2 px-1 text-center font-typewriter transition-all ' +
+                        (out ? 'bg-cardstock/50 text-ink/40 line-through cursor-not-allowed'
+                             : isSelected ? 'bg-leather text-newsprint shadow-[2px_2px_0px_#231F20]'
+                                          : 'bg-newsprint hover:bg-cardstock');
+                    btn.disabled = out;
+                    btn.innerHTML = `<div class="text-sm font-bold">${v.size}</div><div class="text-[10px]">${out ? 'Habis' : v.stock + ' psg'}</div>`;
+                    btn.addEventListener('click', () => {
+                        selectedVariant = v;
+                        renderSizes();
+                    });
+                    sizeWrap.appendChild(btn);
+                });
+
+                if (selectedVariant) {
+                    variantInput.value = selectedVariant.id;
+                    qtyInput.max = Math.max(1, selectedVariant.stock);
+                    if (Number(qtyInput.value) > selectedVariant.stock && selectedVariant.stock > 0) {
+                        qtyInput.value = selectedVariant.stock;
+                    }
+                    if (selectedVariant.stock <= 0) {
+                        stockBadge.textContent = 'STOK HABIS';
+                        stockBadge.className = 'font-typewriter text-xs font-bold text-terracotta';
+                        addBtn.disabled = true;
+                    } else if (selectedVariant.stock < 5) {
+                        stockBadge.textContent = `SISA TERBATAS: ${selectedVariant.stock} PASANG`;
+                        stockBadge.className = 'font-typewriter text-xs font-bold text-terracotta';
+                        addBtn.disabled = false;
+                    } else {
+                        stockBadge.textContent = `STOK GUDANG: ${selectedVariant.stock} PASANG`;
+                        stockBadge.className = 'font-typewriter text-xs font-bold text-bottle';
+                        addBtn.disabled = false;
+                    }
+                }
+            }
+
+            colorBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedColor = btn.getAttribute('data-color-btn');
+                    const hex = btn.getAttribute('data-color-hex');
+                    colorLabel.textContent = selectedColor;
+                    colorBtns.forEach(b => {
+                        b.className = 'px-3 py-2 border-2 border-ink flex items-center gap-2 text-xs font-bold transition-all bg-cardstock text-ink';
+                    });
+                    btn.className = 'px-3 py-2 border-2 border-ink flex items-center gap-2 text-xs font-bold transition-all bg-leather text-newsprint shadow-[2px_2px_0px_#231F20]';
+
+                    // Tint SVG fill dynamically if needed by re-coloring primary paths
+                    if (svgStage && hex) {
+                        svgStage.querySelectorAll('path[fill]').forEach(p => {
+                            const f = p.getAttribute('fill');
+                            if (f && f !== '#F4EFE6' && f !== '#EAE0D0' && f !== '#C85A32' && f !== '#3A2416' && f !== '#231F20') {
+                                p.setAttribute('fill', hex);
+                            }
+                        });
+                    }
+
+                    selectedVariant = null;
+                    renderSizes();
+                });
+            });
+
+            document.getElementById('qty-dec').addEventListener('click', () => {
+                const v = Math.max(1, Number(qtyInput.value) - 1);
+                qtyInput.value = v;
+            });
+
+            document.getElementById('qty-inc').addEventListener('click', () => {
+                const max = selectedVariant ? selectedVariant.stock : 99;
+                const v = Math.min(max, Number(qtyInput.value) + 1);
+                qtyInput.value = Math.max(1, v);
+            });
+
+            document.getElementById('add-to-cart-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!selectedVariant || selectedVariant.stock <= 0) {
+                    window.showStampToast('Pilih ukuran yang masih memiliki stok gudang.', 'error');
+                    return;
+                }
+                window.addToCartAjax(selectedVariant.id, Number(qtyInput.value) || 1);
+            });
+
+            // Live B2B Savings Calculator
+            const range = document.getElementById('calc-pairs-range');
+            const pairsDisp = document.getElementById('calc-pairs-display');
+            const tierLabel = document.getElementById('calc-tier-label');
+            const unitPriceEl = document.getElementById('calc-unit-price');
+            const savingsEl = document.getElementById('calc-savings');
+
+            function updateCalc() {
+                const qty = Number(range.value) || 1;
+                pairsDisp.textContent = qty + ' Pasang';
+                let matched = null;
+                for (const t of tiers) {
+                    if (qty >= t.min && (t.max == null || qty <= t.max)) {
+                        if (!matched || t.discount > matched.discount) matched = t;
+                    }
+                }
+                const pct = matched ? matched.discount : 0;
+                const discountedUnit = pct > 0
+                    ? Math.round((retailPrice * (1 - pct / 100)) / 100) * 100
+                    : retailPrice;
+                const savings = (retailPrice - discountedUnit) * qty;
+
+                tierLabel.textContent = matched ? `${matched.name} (${pct}%)` : 'Harga Eceran (0%)';
+                unitPriceEl.textContent = 'Rp ' + discountedUnit.toLocaleString('id-ID');
+                savingsEl.textContent = 'Rp ' + savings.toLocaleString('id-ID');
+            }
+
+            range.addEventListener('input', updateCalc);
+            renderSizes();
+            updateCalc();
+
+            // B2B Size-Series Accounting Ledger Matrix JS
+            const matrixInputs = document.querySelectorAll('[data-matrix-qty]');
+            const matrixTotalEl = document.getElementById('matrix-total-pairs');
+            const fillSeriBtn = document.getElementById('btn-fill-seri-standar');
+            const matrixForm = document.getElementById('b2b-matrix-form');
+
+            function updateMatrixTotal() {
+                if (!matrixTotalEl) return;
+                let total = 0;
+                matrixInputs.forEach(inp => {
+                    const val = Math.max(0, Number(inp.value) || 0);
+                    total += val;
+                });
+                matrixTotalEl.textContent = total + ' Pasang';
+                return total;
+            }
+
+            matrixInputs.forEach(inp => inp.addEventListener('input', updateMatrixTotal));
+
+            fillSeriBtn?.addEventListener('click', () => {
+                let filled = 0;
+                const standardSizes = ['39', '40', '41', '42', '43'];
+                matrixInputs.forEach(inp => {
+                    if (inp.getAttribute('data-primary') === 'true' &&
+                        standardSizes.includes(inp.getAttribute('data-size'))) {
+                        const max = Number(inp.getAttribute('data-max')) || 0;
+                        if (max > 0) {
+                            inp.value = 1;
+                            filled++;
+                        }
+                    }
+                });
+                updateMatrixTotal();
+                window.showStampToast(`1 Seri Standar (39–43) diisi (${filled} ukuran tersedia).`, 'info');
+            });
+
+            matrixForm?.addEventListener('submit', (e) => {
+                const total = updateMatrixTotal();
+                if (total <= 0) {
+                    e.preventDefault();
+                    window.showStampToast('Isi minimal 1 pasang pada matriks ukuran terlebih dahulu.', 'error');
+                }
+            });
+        })();
+    </script>
+}

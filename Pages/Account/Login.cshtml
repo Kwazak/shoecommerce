@@ -1,0 +1,51 @@
+@page
+@model KaryaJayaFootwear.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Masuk Akun Pabrik";
+}
+
+<div class="max-w-md mx-auto px-4 py-12">
+    <div class="ink-box-lg bg-newsprint p-7">
+        <div class="border-b-2 border-ink pb-3 mb-5">
+            <div class="font-typewriter text-xs font-bold uppercase text-terracotta">BUKU AKSES PELANGGAN &amp; MITRA</div>
+            <h1 class="font-display font-extrabold text-3xl">Masuk Akun Karya Jaya</h1>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="border-2 border-terracotta bg-cardstock p-3 mb-4 text-xs font-bold text-terracotta">
+                <div asp-validation-summary="All"></div>
+            </div>
+        }
+
+        <form method="post" asp-route-returnUrl="@Model.ReturnUrl" class="space-y-4">
+            <div>
+                <label asp-for="Input.Email" class="block font-typewriter text-xs font-bold uppercase mb-1">Alamat Email</label>
+                <input asp-for="Input.Email" class="input-ledger" placeholder="email@contoh.id" />
+                <span asp-validation-for="Input.Email" class="text-xs text-terracotta font-bold"></span>
+            </div>
+
+            <div>
+                <label asp-for="Input.Password" class="block font-typewriter text-xs font-bold uppercase mb-1">Kata Sandi</label>
+                <input asp-for="Input.Password" type="password" class="input-ledger" placeholder="••••••••" />
+                <span asp-validation-for="Input.Password" class="text-xs text-terracotta font-bold"></span>
+            </div>
+
+            <label class="flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                <input asp-for="Input.RememberMe" class="w-4 h-4 accent-[#4A2E1B]" />
+                <span>Ingat sesi masuk saya di peramban ini</span>
+            </label>
+
+            <button type="submit" class="btn-press btn-leather w-full py-3 text-sm font-typewriter uppercase">
+                Masuk Sekarang →
+            </button>
+        </form>
+
+        <div class="mt-6 pt-4 border-t-2 border-dashed border-ink text-center text-xs space-y-2">
+            <p class="text-ink/80">Belum memiliki catatan akun pembeli atau mitra toko?</p>
+            <a asp-page="/Account/Register" class="btn-press btn-bottle px-4 py-2 text-xs font-typewriter uppercase inline-block">
+                Daftar Pembeli / Mitra B2B
+            </a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,307 @@
+@page "{id:int}"
+@model KaryaJayaFootwear.Pages.Orders.InvoiceModel
+@{
+    ViewData["Title"] = $"Faktur {Model.Order.InvoiceNumber}";
+    var o = Model.Order;
+
+    (string stampTop, string stampCenter, string stampBottom, string stampColor) = o.OrderStatus switch
+    {
+        OrderStatus.Dibatalkan => ("PABRIK KARYA JAYA", "DIBATALKAN", "STOK DIKEMBALIKAN", "#C85A32"),
+        OrderStatus.Kedaluwarsa => ("BATAS 24 JAM HABIS", "KEDALUWARSA", "STOK DILEPASKAN", "#C85A32"),
+        _ when o.PaidAt.HasValue => ("CAP KASIR RESMI", "LUNAS", FormatHelper.WibDateShort(o.PaidAt.Value), "#2E4A3E"),
+        _ when o.PaymentMethod == PaymentMethod.TempoB2B => ("MITRA KODIAN", "TEMPO 14 HARI", o.IsTempoNearDue ? "JATUH TEMPO" : "DIPROSES PABRIK", o.IsTempoNearDue ? "#C85A32" : "#4A2E1B"),
+        _ when o.PaymentMethod == PaymentMethod.COD => ("KURIR PABRIK", "BAYAR COD", "DIPROSES PABRIK", "#4A2E1B"),
+        _ => ("KASIR PABRIK", "BELUM LUNAS", "MENUNGGU BAYAR", "#C85A32")
+    };
+}
+
+<div class="max-w-4xl mx-auto px-4 py-8 print-full">
+    <!-- Action Toolbar (Hidden when printing) -->
+    <div class="no-print flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div class="flex items-center gap-2">
+            @if (User.IsInRole(nameof(UserRole.Admin)))
+            {
+                <a asp-page="/Admin/Orders" class="btn-press btn-paper px-3.5 py-2 text-xs font-typewriter uppercase">← Kembali ke Buku Faktur</a>
+            }
+            else if (User.Identity?.IsAuthenticated == true)
+            {
+                <a asp-page="/Account/Orders" class="btn-press btn-paper px-3.5 py-2 text-xs font-typewriter uppercase">← Riwayat Pesanan Saya</a>
+            }
+            else
+            {
+                <a asp-page="/Products/Index" class="btn-press btn-paper px-3.5 py-2 text-xs font-typewriter uppercase">← Kembali ke Katalog</a>
+            }
+        </div>
+
+        <button type="button" onclick="window.print()" class="btn-press btn-leather px-4 py-2 text-xs font-typewriter uppercase">
+            Cetak Faktur (Print)
+        </button>
+    </div>
+
+    <!-- Midtrans Snap / Local Callback Panel -->
+    @if (o.PaymentMethod == PaymentMethod.MidtransOnline && o.OrderStatus == OrderStatus.MenungguPembayaran)
+    {
+        <div class="no-print ink-box bg-cardstock p-5 mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <div class="font-typewriter text-xs font-bold uppercase text-terracotta">PEMBAYARAN ONLINE MIDTRANS SNAP</div>
+                    <h2 class="font-display font-extrabold text-xl">Selesaikan Pembayaran QRIS / Virtual Account / Gerai</h2>
+                    @if (!Model.HasValidMidtransKeys || !string.IsNullOrWhiteSpace(Model.SnapErrorNotice))
+                    {
+                        <p class="text-xs text-ink/85 mt-1 max-w-xl">
+                            <strong>Catatan Mode Sandbox Lokal:</strong> @(Model.SnapErrorNotice ?? "Kunci Sandbox Midtrans pada appsettings.json masih placeholder. Anda dapat langsung menguji alur pelunasan menggunakan tombol Simulasi Callback Lokal di samping.")
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="text-xs text-ink/85 mt-1">Klik tombol Bayar Sekarang untuk membuka jendela pembayaran Midtrans Sandbox.</p>
+                    }
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <button type="button" id="btn-midtrans-pay" class="btn-press btn-terracotta px-5 py-2.5 text-xs font-typewriter uppercase">
+                        Bayar Sekarang (Midtrans)
+                    </button>
+
+                    @if (Model.IsDevelopment)
+                    {
+                        <form method="post" asp-page-handler="SimulateCallback" asp-route-id="@o.Id" asp-route-token="@Model.AccessToken">
+                            <button type="submit" class="btn-press btn-bottle px-4 py-2.5 text-xs font-typewriter uppercase">
+                                Simulasi Callback Lunas Midtrans (Mode Uji Lokal)
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- 1980s Carbon-Copy Paper Invoice -->
+    <article class="carbon-invoice ink-box-lg p-6 sm:p-8 relative">
+        <!-- Letterhead -->
+        <div class="flex flex-wrap items-start justify-between gap-4 border-b-4 border-double border-ink pb-5 mb-5">
+            <div>
+                <div class="font-typewriter text-xs font-bold uppercase tracking-widest text-leather">PABRIK ALAS KAKI NASIONAL</div>
+                <h1 class="font-display font-extrabold text-3xl text-ink">KARYA JAYA 1978</h1>
+                <p class="font-typewriter text-xs text-ink/80 mt-1">
+                    Jl. Raya Cibaduyut No. 78, Bandung — Jawa Barat<br />
+                    Telp. Pabrik: (022) 540-1978 • Bagian Penjualan Eceran &amp; Kodian
+                </p>
+            </div>
+
+            <div class="text-left sm:text-right">
+                <div class="inline-block bg-leather text-newsprint font-typewriter text-xs font-bold px-3 py-1 mb-2 uppercase tracking-wider">
+                    FAKTUR PENJUALAN RESMI
+                </div>
+                <div class="font-typewriter text-sm font-bold">NO: @o.InvoiceNumber</div>
+                <div class="font-typewriter text-xs text-ink/80">Tgl: @FormatHelper.WibDate(o.CreatedAt)</div>
+                <div class="font-typewriter text-xs font-bold mt-1 text-terracotta">
+                    Status: @o.OrderStatus.ToIndonesianLabel()
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer & Payment Metadata -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6 text-sm relative">
+            <div class="border-2 border-ink bg-newsprint/80 p-4">
+                <div class="font-typewriter text-[11px] font-bold uppercase text-leather mb-1.5">KEPADA YTH. / TUJUAN KIRIM:</div>
+                <div class="font-bold text-base">
+                    @o.CustomerName
+                    @if (!string.IsNullOrWhiteSpace(o.ShopName))
+                    {
+                        <span class="font-typewriter text-xs bg-bottle text-newsprint px-1.5 py-0.5 ml-1">@o.ShopName</span>
+                    }
+                </div>
+                <div class="font-typewriter text-xs mt-1">Telp/WA: @o.CustomerPhone • @o.CustomerEmail</div>
+                <div class="text-xs mt-1.5 leading-relaxed">
+                    @o.ShippingAddress<br />
+                    <strong>@o.ShippingCity</strong>
+                </div>
+            </div>
+
+            <div class="border-2 border-ink bg-newsprint/80 p-4 flex flex-col justify-between">
+                <div>
+                    <div class="font-typewriter text-[11px] font-bold uppercase text-leather mb-1.5">KETENTUAN EKSPEDISI &amp; BAYAR:</div>
+                    <div class="text-xs space-y-1 font-typewriter">
+                        <div><strong>Jalur:</strong> @(o.IsWholesaleOrder ? "Partai Grosir B2B" : "Eceran Pabrik (B2C)")</div>
+                        <div><strong>Kirim:</strong> @o.ShippingMethod.ToIndonesianLabel()</div>
+                        <div><strong>Bayar:</strong> @o.PaymentMethod.ToIndonesianLabel()</div>
+                        @if (!string.IsNullOrWhiteSpace(o.TrackingNumber))
+                        {
+                            <div class="text-bottle font-bold"><strong>Resi:</strong> @o.CourierName • @o.TrackingNumber</div>
+                        }
+                        @if (o.TempoDueDate.HasValue)
+                        {
+                            <div class="text-terracotta font-bold"><strong>Jatuh Tempo:</strong> @FormatHelper.WibDateShort(o.TempoDueDate.Value)</div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(o.MidtransTransactionId))
+                        {
+                            <div class="text-bottle font-bold"><strong>Ref. Transaksi:</strong> @o.MidtransTransactionId</div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Factory Rubber Stamp -->
+            <div class="hidden sm:block absolute -top-4 right-2 opacity-90">
+                @Html.Raw(RetroSvgHelper.RenderRubberStampSvg(stampTop, stampCenter, stampBottom, stampColor, -7))
+            </div>
+        </div>
+
+        <!-- Itemized Ledger Table -->
+        <div class="overflow-x-auto mb-6">
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Kode &amp; Nama Barang</th>
+                        <th>Uk. / Warna</th>
+                        <th class="text-center">Qty (Psg)</th>
+                        <th class="text-right">Harga Satuan</th>
+                        <th class="text-right">Jumlah (Rp)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int rowNo = 1; }
+                    @foreach (var item in o.Items)
+                    {
+                        <tr>
+                            <td class="font-typewriter text-center">@rowNo</td>
+                            <td>
+                                <div class="font-typewriter text-[11px] text-leather font-bold">@item.ProductSku</div>
+                                <div class="font-bold">@item.ProductName</div>
+                            </td>
+                            <td class="font-typewriter text-xs">Uk. @item.Size • @item.ColorName</td>
+                            <td class="font-typewriter font-bold text-center">@item.Quantity</td>
+                            <td class="font-typewriter text-right text-xs">
+                                @if (item.UnitAppliedPrice < item.UnitRetailPrice)
+                                {
+                                    <span class="line-through text-ink/50 block">@FormatHelper.Rupiah(item.UnitRetailPrice)</span>
+                                }
+                                <span>@FormatHelper.Rupiah(item.UnitAppliedPrice)</span>
+                            </td>
+                            <td class="font-typewriter font-bold text-right">@FormatHelper.Rupiah(item.LineTotal)</td>
+                        </tr>
+                        rowNo++;
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totals & Signature Strip -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-6 items-end pt-3 border-t-2 border-ink">
+            <div class="sm:col-span-7 text-xs space-y-2">
+                @if (!string.IsNullOrWhiteSpace(o.Notes))
+                {
+                    <div class="border border-dashed border-ink p-2.5 bg-newsprint">
+                        <strong class="font-typewriter uppercase">Catatan Gudang:</strong> @o.Notes
+                    </div>
+                }
+                <div class="font-typewriter text-[11px] text-ink/75 leading-relaxed">
+                    Barang yang sudah dibeli dan diperiksa oleh ekspedisi menjadi tanggung jawab pengiriman. Simpan nomor faktur ini sebagai bukti garansi jahitan pabrik 30 hari.
+                </div>
+                <div class="pt-4 flex gap-10 font-typewriter text-xs">
+                    <div>
+                        <div class="mb-10">Tanda Terima Pembeli,</div>
+                        <div class="border-t border-ink pt-1 w-36 text-center">(@o.CustomerName)</div>
+                    </div>
+                    <div>
+                        <div class="mb-10">Hormat Kami, Kasir Pabrik</div>
+                        <div class="border-t border-ink pt-1 w-40 text-center">(Tata Usaha Karya Jaya)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sm:col-span-5 border-2 border-ink bg-cardstock p-4 space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span>Total Pasang</span>
+                    <span class="font-typewriter font-bold">@o.TotalPairs Pasang</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Bruto Eceran</span>
+                    <span class="font-typewriter">@FormatHelper.Rupiah(o.GrossSubtotal)</span>
+                </div>
+                @if (o.DiscountAmount > 0)
+                {
+                    <div class="flex justify-between text-bottle font-bold">
+                        <span>Potongan B2B (@o.DiscountPercentApplied.ToString("0")%)</span>
+                        <span class="font-typewriter">- @FormatHelper.Rupiah(o.DiscountAmount)</span>
+                    </div>
+                }
+                <div class="flex justify-between">
+                    <span>Ongkos Kirim</span>
+                    <span class="font-typewriter">@FormatHelper.Rupiah(o.ShippingCost)</span>
+                </div>
+                <div class="flex justify-between text-lg font-extrabold pt-2 border-t-2 border-ink">
+                    <span>TOTAL FAKTUR</span>
+                    <span class="font-typewriter text-terracotta">@FormatHelper.Rupiah(o.GrandTotal)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Perforated 90-Day Warranty Stub -->
+        <div class="mt-8 pt-5 border-t-4 border-dashed border-ink">
+            <div class="ticket-stub p-5 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex-1 min-w-[240px] space-y-1.5">
+                    <div class="inline-block bg-bottle text-newsprint font-typewriter text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider">
+                        POTONG DI SINI • SIMPAN BERSAMA DUS SEPATU
+                    </div>
+                    <h2 class="font-display font-extrabold text-xl text-ink">
+                        KUPON GARANSI LEM &amp; JAHITAN 90 HARI
+                    </h2>
+                    <div class="font-typewriter text-xs text-ink/85 space-y-0.5">
+                        <div><strong>No. Faktur:</strong> @o.InvoiceNumber • <strong>Tanggal:</strong> @FormatHelper.WibDateShort(o.CreatedAt)</div>
+                        <div><strong>Berlaku s/d:</strong> @FormatHelper.WibDateShort(o.CreatedAt.AddDays(90)) • <strong>Pemesan:</strong> @o.CustomerName</div>
+                        <div>
+                            <strong>Daftar Barang:</strong>
+                            @string.Join(", ", o.Items.Select(i => $"{i.ProductName} Uk.{i.Size} ({i.Quantity} psg)"))
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-ink/70">
+                        Menjamin perbaikan gratis apabila sol terlepas atau jahitan benang putus dalam 90 hari pemakaian wajar.
+                    </p>
+                </div>
+                <div class="shrink-0">
+                    @Html.Raw(RetroSvgHelper.RenderRubberStampSvg("GARANSI PABRIK", "90 HARI", "LEM & JAHITAN", "#2E4A3E", -5))
+                </div>
+            </div>
+        </div>
+    </article>
+</div>
+
+@section Scripts {
+    @if (o.PaymentMethod == PaymentMethod.MidtransOnline && o.OrderStatus == OrderStatus.MenungguPembayaran)
+    {
+        @if (Model.HasValidMidtransKeys && !string.IsNullOrWhiteSpace(o.MidtransSnapToken))
+        {
+            <script src="@Model.MidtransSnapJsUrl" data-client-key="@Model.MidtransClientKey"></script>
+        }
+        <script>
+            document.getElementById('btn-midtrans-pay')?.addEventListener('click', function () {
+                const snapToken = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(o.MidtransSnapToken));
+                const hasKeys = @(Model.HasValidMidtransKeys ? "true" : "false");
+
+                if (!hasKeys || !snapToken || typeof window.snap === 'undefined') {
+                    window.showStampToast('Kunci Midtrans Sandbox di appsettings.json masih placeholder. Gunakan tombol "Simulasi Callback Lunas Midtrans (Mode Uji Lokal)" untuk menguji pelunasan.', 'info');
+                    return;
+                }
+
+                window.snap.pay(snapToken, {
+                    onSuccess: function () {
+                        window.showStampToast('Pembayaran Midtrans berhasil! Memuat ulang faktur...', 'success');
+                        setTimeout(() => window.location.reload(), 1200);
+                    },
+                    onPending: function () {
+                        window.showStampToast('Menunggu penyelesaian pembayaran Anda di kanal Midtrans.', 'info');
+                    },
+                    onError: function () {
+                        window.showStampToast('Pembayaran Midtrans gagal atau dibatalkan.', 'error');
+                    },
+                    onClose: function () {
+                        window.showStampToast('Jendela pembayaran ditutup sebelum selesai.', 'info');
+                    }
+                });
+            });
+        </script>
+    }
+}

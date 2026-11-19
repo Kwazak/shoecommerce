@@ -1,0 +1,112 @@
+@page
+@model KaryaJayaFootwear.Pages.Account.OrdersModel
+@{
+    ViewData["Title"] = "Riwayat Pesanan Saya";
+}
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-ink pb-4 mb-6">
+        <div>
+            <div class="font-typewriter text-xs font-bold uppercase text-terracotta">BUKU PESANAN PELANGGAN</div>
+            <h1 class="font-display font-extrabold text-3xl">Riwayat Faktur &amp; Pengiriman</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <a asp-page="/Account/Profile" class="btn-press btn-paper px-4 py-2 text-xs font-typewriter uppercase">Profil Akun</a>
+            <form method="post" asp-page="/Account/Logout">
+                <button type="submit" class="btn-press btn-terracotta px-4 py-2 text-xs font-typewriter uppercase">Keluar</button>
+            </form>
+        </div>
+    </div>
+
+    @if (TempData["PartnerPendingNotice"] is string pendingNotice)
+    {
+        <div class="ink-box bg-cardstock border-terracotta p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div class="space-y-1">
+                <span class="inline-block bg-terracotta text-newsprint font-typewriter text-xs font-bold px-2.5 py-0.5 uppercase">
+                    CAP PENDAFTARAN DITERIMA
+                </span>
+                <p class="font-display font-bold text-lg text-ink">@pendingNotice</p>
+            </div>
+            <div>
+                @Html.Raw(RetroSvgHelper.RenderRubberStampSvg("MITRA B2B", "MENUNGGU ACC", "ADMIN PABRIK", "#C85A32", -4))
+            </div>
+        </div>
+    }
+    else if (Model.CurrentUser is { Role: UserRole.PartnerB2B, IsB2BApproved: false })
+    {
+        <div class="ticket-stub p-4 mb-6 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <div class="font-typewriter text-xs font-bold uppercase text-terracotta">STATUS KEMITRAAN TOKO: MENUNGGU VERIFIKASI ADMIN</div>
+                <p class="text-sm font-semibold">
+                    Pendaftaran Toko <strong>@Model.CurrentUser.ShopName (@Model.CurrentUser.City)</strong> sedang ditinjau Admin Pabrik untuk aktivasi Harga Kodian &amp; Tempo 14 Hari.
+                </p>
+            </div>
+        </div>
+    }
+    else if (Model.CurrentUser is { Role: UserRole.PartnerB2B, IsB2BApproved: true })
+    {
+        <div class="ink-box bg-[#DCE7DF] p-4 mb-6 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <div class="font-typewriter text-xs font-bold uppercase text-bottle">★ MITRA TOKO KODIAN TERVERIFIKASI</div>
+                <p class="text-sm font-semibold text-ink">
+                    Toko <strong>@Model.CurrentUser.ShopName (@Model.CurrentUser.City)</strong> aktif menikmati diskon kodian 15%–35% dan fasilitas Tempo Mitra 14 Hari.
+                </p>
+            </div>
+            <a asp-page="/Products/Index" class="btn-press btn-bottle px-4 py-2 text-xs font-typewriter uppercase">Pesan Stok Kodian →</a>
+        </div>
+    }
+
+    @if (Model.Orders.Count == 0)
+    {
+        <div class="ink-box bg-cardstock p-10 text-center">
+            <div class="font-display font-extrabold text-2xl mb-2">Belum Ada Catatan Faktur</div>
+            <p class="text-sm text-ink/80 mb-5">Anda belum pernah menerbitkan pesanan di Pabrik Karya Jaya.</p>
+            <a asp-page="/Products/Index" class="btn-press btn-leather px-5 py-2.5 text-xs font-typewriter uppercase">Mulai Belanja Sekarang</a>
+        </div>
+    }
+    else
+    {
+        <div class="ink-box bg-newsprint overflow-x-auto">
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th>No. Faktur</th>
+                        <th>Tanggal</th>
+                        <th>Total Pasang</th>
+                        <th>Pembayaran</th>
+                        <th>Status Pabrik</th>
+                        <th class="text-right">Total Tagihan</th>
+                        <th>Faktur</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ord in Model.Orders)
+                    {
+                        <tr>
+                            <td class="font-typewriter font-bold text-leather">@ord.InvoiceNumber</td>
+                            <td class="font-typewriter text-xs">@FormatHelper.WibDate(ord.CreatedAt)</td>
+                            <td class="font-typewriter font-bold">@ord.TotalPairs psg</td>
+                            <td class="text-xs">
+                                <div>@ord.PaymentMethod.ToIndonesianLabel()</div>
+                                <div class="font-typewriter text-[11px] font-bold @(ord.PaidAt.HasValue ? "text-bottle" : "text-terracotta")">
+                                    @(ord.PaidAt.HasValue ? "LUNAS" : "BELUM LUNAS")
+                                </div>
+                            </td>
+                            <td>
+                                <span class="font-typewriter text-xs font-bold px-2 py-0.5 border border-ink bg-cardstock">
+                                    @ord.OrderStatus.ToIndonesianLabel()
+                                </span>
+                            </td>
+                            <td class="text-right font-typewriter font-bold">@FormatHelper.Rupiah(ord.GrandTotal)</td>
+                            <td>
+                                <a asp-page="/Orders/Invoice" asp-route-id="@ord.Id" asp-route-token="@ord.OrderAccessToken" class="btn-press btn-paper px-3 py-1 text-xs font-typewriter uppercase">
+                                    Lihat Faktur
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

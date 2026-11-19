@@ -1,0 +1,14 @@
+@page
+@model ErrorModel
+@{
+    ViewData["Title"] = "Terjadi Gangguan";
+}
+
+<div class="max-w-lg mx-auto px-4 py-14">
+    <div class="ink-box bg-cardstock p-8 text-center">
+        <div class="font-typewriter text-xs font-bold uppercase text-terracotta mb-2">CATATAN GANGGUAN SISTEM</div>
+        <h1 class="font-display font-extrabold text-3xl mb-3">Terjadi Kesalahan Proses</h1>
+        <p class="text-sm text-ink/80 mb-5">Silakan kembali ke halaman utama atau ulangi permintaan Anda.</p>
+        <a asp-page="/Index" class="btn-press btn-leather px-5 py-2.5 text-xs font-typewriter uppercase">Kembali ke Beranda</a>
+    </div>
+</div>

@@ -1,0 +1,202 @@
+@page
+@model KaryaJayaFootwear.Pages.Products.IndexModel
+@{
+    ViewData["Title"] = "Katalog Lengkap Pabrik";
+}
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header Banner -->
+    <div class="ink-box bg-cardstock p-6 mb-7 flex flex-wrap items-center justify-between gap-4">
+        <div>
+            <div class="font-typewriter text-xs font-bold uppercase tracking-widest text-terracotta">BUKU KATALOG RESMI KARYA JAYA 1978</div>
+            <h1 class="font-display font-extrabold text-3xl sm:text-4xl">Daftar Produksi Alas Kaki Pabrik</h1>
+            <p class="text-sm text-ink/80 mt-1">
+                Semua model diproduksi dalam ukuran standar kaki Indonesia <strong>38 hingga 44</strong>.
+            </p>
+        </div>
+
+        <!-- B2C vs B2B Price Simulation Switch -->
+        <form method="get" class="bg-newsprint border-2 border-ink p-3 flex flex-wrap items-center gap-3">
+            <input type="hidden" name="Category" value="@Model.Filter.Category" />
+            <input type="hidden" name="Size" value="@Model.Filter.Size" />
+            <input type="hidden" name="MinPrice" value="@Model.Filter.MinPrice" />
+            <input type="hidden" name="MaxPrice" value="@Model.Filter.MaxPrice" />
+            <input type="hidden" name="Search" value="@Model.Filter.Search" />
+            @if (Model.Filter.InStockOnly)
+            {
+                <input type="hidden" name="InStockOnly" value="true" />
+            }
+
+            <div>
+                <div class="font-typewriter text-[11px] font-bold uppercase text-bottle">Simulasi Harga Kodian B2B</div>
+                <div class="text-xs text-ink/75">
+                    @(Model.IsApprovedB2B ? "Akun Anda Mitra B2B Aktif" : "Pratinjau tarif grosir toko")
+                </div>
+            </div>
+            <select name="SimulationPairs" class="input-ledger !w-auto text-xs font-typewriter font-bold py-1.5" onchange="this.form.submit()">
+                <option value="6" selected="@(Model.Filter.SimulationPairs == 6)">½ Kodi (6 Pasang)</option>
+                <option value="12" selected="@(Model.Filter.SimulationPairs == 12)">1 Kodi (12 Pasang)</option>
+                <option value="24" selected="@(Model.Filter.SimulationPairs >= 24)">≥ 2 Kodi (24+ Pasang)</option>
+            </select>
+            <label class="inline-flex items-center gap-2 cursor-pointer font-typewriter text-xs font-bold">
+                <input type="checkbox" name="SimulateB2B" value="true" checked="@(Model.Filter.SimulateB2B || Model.IsApprovedB2B)" onchange="this.form.submit()" class="w-4 h-4 accent-[#2E4A3E]" />
+                <span>Tampilkan Tarif B2B</span>
+            </label>
+        </form>
+    </div>
+
+    @if (!Model.IsApprovedB2B)
+    {
+        <div class="ticket-stub p-4 mb-7 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="bg-bottle text-newsprint font-typewriter text-xs font-bold px-2.5 py-1 border border-ink">KHUSUS TOKO SEPATU</span>
+                <p class="text-sm font-semibold">
+                    Punya toko sepatu atau warung alas kaki? Dapatkan potongan <strong>15% – 35%</strong> &amp; Tempo 14 Hari langsung dari pabrik!
+                </p>
+            </div>
+            <a asp-page="/Account/Register" asp-route-type="PartnerB2B" class="btn-press btn-bottle px-4 py-2 text-xs font-typewriter uppercase">
+                Daftar Mitra Grosir →
+            </a>
+        </div>
+    }
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+        <!-- Filter Sidebar -->
+        <aside class="lg:col-span-3 ink-box bg-cardstock p-5">
+            <div class="font-typewriter text-xs font-bold uppercase tracking-widest border-b-2 border-ink pb-2 mb-4">
+                Saring Daftar Katalog
+            </div>
+            <form method="get" class="space-y-4">
+                @if (Model.Filter.SimulateB2B)
+                {
+                    <input type="hidden" name="SimulateB2B" value="true" />
+                    <input type="hidden" name="SimulationPairs" value="@Model.Filter.SimulationPairs" />
+                }
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Kata Kunci / SKU</label>
+                    <input type="text" name="Search" value="@Model.Filter.Search" placeholder="Kanvas, Kulit, KJ-SPT..." class="input-ledger text-sm" />
+                </div>
+
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Kategori</label>
+                    <select name="Category" class="input-ledger text-sm">
+                        <option value="">Semua Kategori</option>
+                        @foreach (FootwearCategory cat in Enum.GetValues<FootwearCategory>())
+                        {
+                            <option value="@cat" selected="@(Model.Filter.Category == cat)">@cat.ToIndonesianLabel()</option>
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-typewriter text-xs font-bold uppercase mb-1">Ukuran Tersedia</label>
+                    <select name="Size" class="input-ledger text-sm font-typewriter">
+                        <option value="">Semua Ukuran (38–44)</option>
+                        @for (int s = 38; s <= 44; s++)
+                        {
+                            <option value="@s" selected="@(Model.Filter.Size == s)">Ukuran @s</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-typewriter text-[11px] font-bold uppercase mb-1">Harga Min</label>
+                        <input type="number" name="MinPrice" value="@Model.Filter.MinPrice" step="5000" placeholder="65000" class="input-ledger text-xs font-typewriter" />
+                    </div>
+                    <div>
+                        <label class="block font-typewriter text-[11px] font-bold uppercase mb-1">Harga Maks</label>
+                        <input type="number" name="MaxPrice" value="@Model.Filter.MaxPrice" step="5000" placeholder="260000" class="input-ledger text-xs font-typewriter" />
+                    </div>
+                </div>
+
+                <label class="flex items-center gap-2 text-sm font-semibold cursor-pointer">
+                    <input type="checkbox" name="InStockOnly" value="true" checked="@Model.Filter.InStockOnly" class="w-4 h-4 accent-[#4A2E1B]" />
+                    <span>Hanya stok siap kirim</span>
+                </label>
+
+                <div class="grid grid-cols-2 gap-2 pt-2">
+                    <button type="submit" class="btn-press btn-leather py-2 text-xs font-typewriter uppercase">Terapkan</button>
+                    <a asp-page="/Products/Index" class="btn-press btn-paper py-2 text-xs font-typewriter uppercase text-center">Reset</a>
+                </div>
+            </form>
+        </aside>
+
+        <!-- Product Grid -->
+        <div class="lg:col-span-9">
+            <div class="flex items-center justify-between mb-4 font-typewriter text-xs font-bold">
+                <span>MENAMPILKAN @Model.Products.Count MODEL ALAS KAKI</span>
+                @if (Model.Filter.SimulateB2B && !Model.IsApprovedB2B)
+                {
+                    <span class="bg-bottle text-newsprint px-2.5 py-1 border border-ink">MODE SIMULASI KODIAN (@Model.Filter.SimulationPairs PSG)</span>
+                }
+            </div>
+
+            @if (Model.Products.Count == 0)
+            {
+                <div class="ink-box bg-cardstock p-10 text-center">
+                    <div class="font-display font-extrabold text-2xl mb-2">Tidak Ada Produk yang Cocok</div>
+                    <p class="text-sm text-ink/80 mb-4">Coba ubah filter ukuran, harga, atau kata kunci pencarian Anda.</p>
+                    <a asp-page="/Products/Index" class="btn-press btn-terracotta px-5 py-2.5 text-xs font-typewriter uppercase">Tampilkan Semua Produk</a>
+                </div>
+            }
+            else
+            {
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                    @foreach (var p in Model.Products)
+                    {
+                        <article class="ink-box bg-newsprint flex flex-col justify-between">
+                            <div>
+                                <div class="bg-cardstock border-b-2 border-ink px-3.5 py-2 flex items-center justify-between font-typewriter text-[11px]">
+                                    <span class="font-bold">@p.Sku</span>
+                                    <span class="px-1.5 py-0.5 border border-ink bg-newsprint font-bold uppercase">@p.Category.ToIndonesianLabel()</span>
+                                </div>
+                                <a asp-page="/Products/Details" asp-route-id="@p.Id" asp-route-SimulateB2B="@(Model.Filter.SimulateB2B ? "true" : null)" class="block p-3 border-b-2 border-ink hover:bg-cardstock/40 transition-colors">
+                                    <partial name="_ProductVisualFrame" model="@((p.ImageUrl, p.SvgIllustrationKey, p.PrimaryColorHex, p.Name, "h-36"))" />
+                                </a>
+                                <div class="p-4">
+                                    <a asp-page="/Products/Details" asp-route-id="@p.Id" class="font-display font-extrabold text-lg leading-snug hover:text-terracotta block mb-1">
+                                        @p.Name
+                                    </a>
+                                    <p class="text-xs text-ink/80 mb-3">@p.ShortTagline</p>
+                                    <div class="flex flex-wrap gap-1 mb-2">
+                                        @foreach (var sz in p.AvailableSizes)
+                                        {
+                                            <span class="font-typewriter text-[10px] font-bold px-1.5 py-0.5 border border-ink bg-cardstock">@sz</span>
+                                        }
+                                    </div>
+                                    <div class="font-typewriter text-[11px] text-ink/70">Total Stok Gudang: <strong>@p.TotalStock psg</strong></div>
+                                </div>
+                            </div>
+                            <div class="px-4 py-3 bg-cardstock border-t-2 border-ink flex items-center justify-between gap-2">
+                                <div>
+                                    @if (p.DisplayDiscountPercent > 0)
+                                    {
+                                        <div class="font-typewriter text-[11px] line-through text-ink/50">@FormatHelper.Rupiah(p.RetailPrice)</div>
+                                        <div class="font-typewriter font-bold text-base text-bottle">
+                                            @FormatHelper.Rupiah(p.DisplayWholesalePrice)
+                                            <span class="halftone-badge text-[10px] bg-bottle text-newsprint px-1.5 py-0.5 border border-ink ml-0.5">-@p.DisplayDiscountPercent.ToString("0")%</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="font-typewriter text-[10px] uppercase text-ink/70">Eceran Pabrik</div>
+                                        <div class="font-typewriter font-bold text-base text-terracotta">@FormatHelper.Rupiah(p.RetailPrice)</div>
+                                    }
+                                </div>
+                                <a asp-page="/Products/Details" asp-route-id="@p.Id" asp-route-SimulateB2B="@(Model.Filter.SimulateB2B ? "true" : null)" class="btn-press btn-leather px-3 py-2 text-xs font-typewriter uppercase">
+                                    Rincian
+                                </a>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- B2B Starter Bundles Brochure -->
+<div class="border-t-2 border-ink bg-cardstock/40 mt-6">
+    <partial name="_StarterBundlesSection" model="Model.StarterBundles" />
+</div>

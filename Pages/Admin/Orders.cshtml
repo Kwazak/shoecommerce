@@ -1,0 +1,186 @@
+@page
+@model KaryaJayaFootwear.Pages.Admin.OrdersModel
+@{
+    ViewData["Title"] = "Faktur & Pengiriman";
+}
+
+<div class="space-y-6">
+    <div class="flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink pb-4">
+        <div>
+            <div class="font-typewriter text-xs font-bold uppercase text-terracotta">BAGIAN PEMENUHAN PESANAN</div>
+            <h1 class="font-display font-extrabold text-3xl">Buku Faktur &amp; Status Produksi</h1>
+        </div>
+
+        <form method="post" asp-page-handler="RunLifecycleCheck">
+            <button type="submit" class="btn-press btn-terracotta px-4 py-2 text-xs font-typewriter uppercase">
+                Jalankan Pengecekan Jatuh Tempo Sekarang
+            </button>
+        </form>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <form method="get" class="ink-box bg-cardstock p-4 flex flex-wrap items-end gap-3">
+        <div class="flex-1 min-w-[220px]">
+            <label class="block font-typewriter text-xs font-bold uppercase mb-1">Cari No. Faktur / Pemesan / Kota</label>
+            <input type="text" name="Search" value="@Model.Search" placeholder="FKJ-2026..., Nama Toko, Kota..." class="input-ledger text-sm" />
+        </div>
+        <div class="w-56">
+            <label class="block font-typewriter text-xs font-bold uppercase mb-1">Filter Status</label>
+            <select name="StatusFilter" class="input-ledger text-sm">
+                <option value="">Semua Status</option>
+                @foreach (OrderStatus st in Enum.GetValues<OrderStatus>())
+                {
+                    <option value="@st" selected="@(Model.StatusFilter == st)">@st.ToIndonesianLabel()</option>
+                }
+            </select>
+        </div>
+        <button type="submit" class="btn-press btn-leather px-4 py-2 text-xs font-typewriter uppercase">Cari Faktur</button>
+        <a asp-page="/Admin/Orders" class="btn-press btn-paper px-4 py-2 text-xs font-typewriter uppercase">Reset</a>
+    </form>
+
+    @if (Model.Orders.Count == 0)
+    {
+        <div class="ink-box bg-newsprint p-10 text-center">
+            <div class="font-display font-bold text-xl mb-1">Belum Ada Faktur Masuk</div>
+            <p class="text-sm text-ink/75">Pesanan yang diterbitkan oleh Pembeli Eceran maupun Mitra B2B akan muncul di sini.</p>
+        </div>
+    }
+    else
+    {
+        <div class="ink-box bg-newsprint overflow-x-auto">
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th>Faktur &amp; Tgl</th>
+                        <th>Pemesan / Toko</th>
+                        <th>Item &amp; Jalur</th>
+                        <th>Pembayaran</th>
+                        <th class="text-right">Total</th>
+                        <th>Ubah Status</th>
+                        <th>Dokumen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model.Orders)
+                    {
+                        <tr>
+                            <td>
+                                <div class="font-typewriter font-bold text-leather">@o.InvoiceNumber</div>
+                                <div class="font-typewriter text-[11px] text-ink/70">@FormatHelper.WibDate(o.CreatedAt)</div>
+                            </td>
+                            <td>
+                                <div class="font-bold">@o.CustomerName</div>
+                                @if (!string.IsNullOrWhiteSpace(o.ShopName))
+                                {
+                                    <div class="font-typewriter text-[11px] text-bottle font-bold">@o.ShopName</div>
+                                }
+                                <div class="text-xs text-ink/75">@o.ShippingCity • @o.CustomerPhone</div>
+                            </td>
+                            <td class="text-xs">
+                                <div class="font-typewriter font-bold">@o.TotalPairs pasang (@(o.IsWholesaleOrder ? "B2B Grosir" : "B2C Eceran"))</div>
+                                <div class="text-ink/75">@o.ShippingMethod.ToIndonesianLabel()</div>
+                                @if (!string.IsNullOrWhiteSpace(o.TrackingNumber))
+                                {
+                                    <div class="font-typewriter text-[11px] font-bold text-bottle mt-0.5">Resi: @o.CourierName (@o.TrackingNumber)</div>
+                                }
+                            </td>
+                            <td class="text-xs">
+                                <div>@o.PaymentMethod.ToIndonesianLabel()</div>
+                                @if (o.PaidAt.HasValue)
+                                {
+                                    <span class="inline-block font-typewriter text-[10px] font-bold bg-bottle text-newsprint px-1.5 py-0.5 mt-1">LUNAS</span>
+                                }
+                                else
+                                {
+                                    <span class="inline-block font-typewriter text-[10px] font-bold bg-terracotta text-newsprint px-1.5 py-0.5 mt-1">BELUM LUNAS</span>
+                                    @if (o.IsTempoNearDue)
+                                    {
+                                        <span class="inline-block font-typewriter text-[10px] font-bold bg-terracotta text-newsprint border border-ink px-1.5 py-0.5 mt-1 ml-1">JATUH TEMPO</span>
+                                    }
+                                    @if (o.PaymentMethod == PaymentMethod.TempoB2B || o.PaymentMethod == PaymentMethod.COD)
+                                    {
+                                        <form method="post" asp-page-handler="MarkPaid" class="inline-block ml-1">
+                                            <input type="hidden" name="orderId" value="@o.Id" />
+                                            <button type="submit" class="font-typewriter text-[10px] underline font-bold text-bottle">[Tandai Lunas]</button>
+                                        </form>
+                                    }
+                                }
+                            </td>
+                            <td class="text-right font-typewriter font-bold">@FormatHelper.Rupiah(o.GrandTotal)</td>
+                            <td>
+                                <form method="post" asp-page-handler="UpdateStatus" class="flex items-center gap-1.5">
+                                    <input type="hidden" name="orderId" value="@o.Id" />
+                                    <select name="newStatus" class="input-ledger !w-44 text-xs py-1 font-typewriter font-bold">
+                                        @foreach (OrderStatus st in Enum.GetValues<OrderStatus>())
+                                        {
+                                            <option value="@st" selected="@(o.OrderStatus == st)">@st.ToIndonesianLabel()</option>
+                                        }
+                                    </select>
+                                    <button type="submit" class="btn-press btn-paper px-2.5 py-1 text-[11px] font-typewriter uppercase">Simpan</button>
+                                </form>
+                            </td>
+                            <td>
+                                <a asp-page="/Orders/Invoice" asp-route-id="@o.Id" class="btn-press btn-leather px-2.5 py-1 text-[11px] font-typewriter uppercase">
+                                    Faktur
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <!-- Collapsible WhatsApp Notification Log Drawer -->
+    <details class="ink-box bg-cardstock p-5">
+        <summary class="cursor-pointer font-display font-bold text-xl flex items-center justify-between list-none">
+            <span>
+                <span class="font-typewriter text-xs bg-bottle text-newsprint px-2 py-0.5 mr-2 uppercase">ARSIP KIRIM</span>
+                Log Pesan WhatsApp (@Model.WhatsAppLogs.Count catatan)
+            </span>
+            <span class="font-typewriter text-xs uppercase text-leather underline">Buka / Tutup Drawer ▼</span>
+        </summary>
+        <div class="mt-4 pt-4 border-t-2 border-dashed border-ink overflow-x-auto">
+            @if (Model.WhatsAppLogs.Count == 0)
+            {
+                <p class="text-sm text-ink/75">Belum ada pesan WhatsApp yang dikirim oleh sistem.</p>
+            }
+            else
+            {
+                <table class="ledger-table text-xs">
+                    <thead>
+                        <tr>
+                            <th>Waktu</th>
+                            <th>No. WhatsApp</th>
+                            <th>Kejadian &amp; Faktur</th>
+                            <th>Status Kirim</th>
+                            <th>Isi Pesan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in Model.WhatsAppLogs)
+                        {
+                            <tr>
+                                <td class="font-typewriter whitespace-nowrap">@FormatHelper.WibDate(log.CreatedAt)</td>
+                                <td class="font-typewriter font-bold">@log.RecipientPhone</td>
+                                <td class="font-typewriter">
+                                    <span class="font-bold text-leather">@log.EventType</span>
+                                    @if (log.Order is not null)
+                                    {
+                                        <div class="text-[11px]">@log.Order.InvoiceNumber</div>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="font-typewriter text-[10px] font-bold bg-newsprint border border-ink px-2 py-0.5">
+                                        @log.DeliveryStatus
+                                    </span>
+                                </td>
+                                <td class="max-w-md text-ink/90">@log.MessageBody</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </details>
+</div>

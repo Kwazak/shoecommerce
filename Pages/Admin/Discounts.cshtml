@@ -1,0 +1,58 @@
+@page
+@model KaryaJayaFootwear.Pages.Admin.DiscountsModel
+@{
+    ViewData["Title"] = "Aturan Diskon Kodian B2B";
+}
+
+<div class="max-w-4xl space-y-6">
+    <div class="border-b-2 border-ink pb-4">
+        <div class="font-typewriter text-xs font-bold uppercase text-bottle">KEBIJAKAN HARGA GROSIR PABRIK</div>
+        <h1 class="font-display font-extrabold text-3xl">Pengaturan Tingkat Diskon Kodian B2B</h1>
+        <p class="text-sm text-ink/80 mt-1">
+            Perubahan di sini langsung diterapkan oleh <code class="font-typewriter bg-cardstock px-1">PricingEngineService</code> pada keranjang, simulasi katalog, dan checkout Mitra B2B terverifikasi.
+        </p>
+    </div>
+
+    <form method="post" class="ink-box bg-newsprint p-6 space-y-5">
+        <table class="ledger-table">
+            <thead>
+                <tr>
+                    <th>Nama Golongan Kodi</th>
+                    <th>Min. Pasang</th>
+                    <th>Maks. Pasang (Kosong = Tak Terbatas)</th>
+                    <th>Diskon (%)</th>
+                    <th>Aktif</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Tiers.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            <input type="hidden" asp-for="Tiers[i].Id" />
+                            <input asp-for="Tiers[i].TierName" class="input-ledger text-sm font-bold" required />
+                        </td>
+                        <td>
+                            <input asp-for="Tiers[i].MinPairs" type="number" min="1" class="input-ledger font-typewriter text-sm !w-24" required />
+                        </td>
+                        <td>
+                            <input asp-for="Tiers[i].MaxPairs" type="number" min="1" placeholder="∞" class="input-ledger font-typewriter text-sm !w-28" />
+                        </td>
+                        <td>
+                            <input asp-for="Tiers[i].DiscountPercent" type="number" step="0.5" min="0" max="85" class="input-ledger font-typewriter font-bold text-sm !w-24" required />
+                        </td>
+                        <td class="text-center">
+                            <input asp-for="Tiers[i].IsActive" class="w-4 h-4 accent-[#2E4A3E]" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="flex justify-end">
+            <button type="submit" class="btn-press btn-leather px-6 py-3 text-xs font-typewriter uppercase">
+                Simpan Aturan Diskon Kodian
+            </button>
+        </div>
+    </form>
+</div>
