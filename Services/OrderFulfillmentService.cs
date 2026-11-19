@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 using KaryaJayaFootwear.Data;
 using KaryaJayaFootwear.Models;
 using Microsoft.EntityFrameworkCore;
@@ -321,28 +322,25 @@ public sealed class OrderFulfillmentService
             return true;
         }
 
-        if (principal.Identity?.IsAuthenticated == true)
+        if (order.UserId.HasValue)
         {
-            var idClaim = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (int.TryParse(idClaim, out var uid) && order.UserId.HasValue && order.UserId.Value == uid)
+            if (principal.Identity?.IsAuthenticated == true)
             {
-                return true;
+                var idClaim = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (int.TryParse(idClaim, out var uid) && order.UserId.Value == uid)
+                {
+                    return true;
+                }
             }
+            return false;
         }
 
-        // B2C Guest checkout (UserId is null): validate via unguessable OrderAccessToken
-        if (!order.UserId.HasValue &&
-            !string.IsNullOrWhiteSpace(accessToken) &&
-            string.Equals(order.OrderAccessToken, accessToken.Trim(), StringComparison.Ordinal))
+        // B2C Guest checkout (UserId is null): validate via unguessable OrderAccessToken in constant time
+        if (!string.IsNullOrWhiteSpace(accessToken) && !string.IsNullOrWhiteSpace(order.OrderAccessToken))
         {
-            return true;
-        }
-
-        // Also allow access if valid token matches (e.g. direct redirect after checkout)
-        if (!string.IsNullOrWhiteSpace(accessToken) &&
-            string.Equals(order.OrderAccessToken, accessToken.Trim(), StringComparison.Ordinal))
-        {
-            return true;
+            byte[] expectedHash = SHA256.HashData(Encoding.UTF8.GetBytes(order.OrderAccessToken));
+            byte[] providedHash = SHA256.HashData(Encoding.UTF8.GetBytes(accessToken.Trim()));
+            return CryptographicOperations.FixedTimeEquals(providedHash, expectedHash);
         }
 
         return false;

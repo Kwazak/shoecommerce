@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
@@ -155,7 +156,8 @@ public sealed class MidtransPaymentService : IPaymentService
 
     public bool VerifyWebhookSignature(MidtransNotificationPayload payload)
     {
-        if (string.IsNullOrWhiteSpace(payload.order_id) ||
+        if (string.IsNullOrWhiteSpace(_options.ServerKey) ||
+            string.IsNullOrWhiteSpace(payload.order_id) ||
             string.IsNullOrWhiteSpace(payload.status_code) ||
             string.IsNullOrWhiteSpace(payload.gross_amount) ||
             string.IsNullOrWhiteSpace(payload.signature_key))
@@ -166,10 +168,16 @@ public sealed class MidtransPaymentService : IPaymentService
         string raw = $"{payload.order_id}{payload.status_code}{payload.gross_amount}{_options.ServerKey}";
         byte[] hashBytes = SHA512.HashData(Encoding.UTF8.GetBytes(raw));
         string computed = Convert.ToHexString(hashBytes).ToLowerInvariant();
+        string provided = payload.signature_key.Trim().ToLowerInvariant();
 
-        return CryptographicOperations.FixedTimeEquals(
-            Encoding.UTF8.GetBytes(computed),
-            Encoding.UTF8.GetBytes(payload.signature_key.Trim().ToLowerInvariant()));
+        byte[] computedBytes = Encoding.UTF8.GetBytes(computed);
+        byte[] providedBytes = Encoding.UTF8.GetBytes(provided);
+        if (computedBytes.Length != providedBytes.Length)
+        {
+            return false;
+        }
+
+        return CryptographicOperations.FixedTimeEquals(computedBytes, providedBytes);
     }
 
     public async Task<(bool Success, string Message)> ProcessWebhookNotificationAsync(
@@ -190,52 +198,63 @@ public sealed class MidtransPaymentService : IPaymentService
             return (false, $"Faktur {payload.order_id} tidak ditemukan.");
         }
 
+        if (!decimal.TryParse(payload.gross_amount, NumberStyles.Number, CultureInfo.InvariantCulture, out var grossAmount) ||
+            Math.Abs(grossAmount - order.GrandTotal) >= 0.01m)
+        {
+            return (false, $"Nominal pembayaran ({payload.gross_amount}) tidak sesuai dengan total faktur ({order.GrandTotal:0}).");
+        }
+
         var status = payload.transaction_status.Trim().ToLowerInvariant();
         var fraud = payload.fraud_status?.Trim().ToLowerInvariant();
 
         if (status == "settlement" || (status == "capture" && (string.IsNullOrEmpty(fraud) || fraud == "accept")))
         {
-            if (order.OrderStatus == OrderStatus.MenungguPembayaran || order.PaymentMethod == PaymentMethod.TempoB2B)
+            // Strict idempotency: ignore duplicate settlement if already paid or already cancelled/expired
+            if (order.PaidAt.HasValue ||
+                order.OrderStatus is OrderStatus.Dibatalkan or OrderStatus.Kedaluwarsa ||
+                (order.OrderStatus != OrderStatus.MenungguPembayaran && order.PaymentMethod != PaymentMethod.TempoB2B))
             {
-                await using var tx = await _db.Database.BeginTransactionAsync();
-                try
+                return (true, $"Notifikasi duplikat untuk faktur {order.InvoiceNumber} diabaikan (status saat ini: {order.OrderStatus.ToIndonesianLabel()}).");
+            }
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                if (order.OrderStatus == OrderStatus.MenungguPembayaran)
                 {
-                    if (order.OrderStatus == OrderStatus.MenungguPembayaran)
+                    var variantIds = order.Items.Select(i => i.ProductVariantId).Distinct().ToList();
+                    var variants = await _db.ProductVariants
+                        .Where(v => variantIds.Contains(v.Id))
+                        .ToDictionaryAsync(v => v.Id);
+
+                    foreach (var item in order.Items)
                     {
-                        var variantIds = order.Items.Select(i => i.ProductVariantId).Distinct().ToList();
-                        var variants = await _db.ProductVariants
-                            .Where(v => variantIds.Contains(v.Id))
-                            .ToDictionaryAsync(v => v.Id);
-
-                        foreach (var item in order.Items)
+                        if (variants.TryGetValue(item.ProductVariantId, out var variant))
                         {
-                            if (variants.TryGetValue(item.ProductVariantId, out var variant))
-                            {
-                                variant.PhysicalStock = Math.Max(0, variant.PhysicalStock - item.Quantity);
-                                variant.ReservedStock = Math.Max(0, variant.ReservedStock - item.Quantity);
-                                variant.ConcurrencyStamp = Guid.NewGuid();
-                            }
+                            variant.PhysicalStock = Math.Max(0, variant.PhysicalStock - item.Quantity);
+                            variant.ReservedStock = Math.Max(0, variant.ReservedStock - item.Quantity);
+                            variant.ConcurrencyStamp = Guid.NewGuid();
                         }
-
-                        order.OrderStatus = OrderStatus.DibayarSiapDikemas;
                     }
 
-                    order.PaidAt ??= DateTime.UtcNow;
-                    order.IsTempoNearDue = false;
-                    order.MidtransTransactionId = string.IsNullOrWhiteSpace(payload.transaction_id)
-                        ? $"SIM-{DateTime.UtcNow:yyyyMMddHHmmss}"
-                        : payload.transaction_id;
+                    order.OrderStatus = OrderStatus.DibayarSiapDikemas;
+                }
 
-                    await _db.SaveChangesAsync();
-                    await tx.CommitAsync();
-                    await _cache.RemoveByTagAsync("catalog");
-                    await _notifications.SendPaymentConfirmedAsync(order);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    await tx.RollbackAsync();
-                    return (false, "Terjadi bentrok pembaruan stok saat konfirmasi pembayaran. Silakan ulangi.");
-                }
+                order.PaidAt ??= DateTime.UtcNow;
+                order.IsTempoNearDue = false;
+                order.MidtransTransactionId = string.IsNullOrWhiteSpace(payload.transaction_id)
+                    ? $"SIM-{DateTime.UtcNow:yyyyMMddHHmmss}"
+                    : payload.transaction_id;
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+                await _cache.RemoveByTagAsync("catalog");
+                await _notifications.SendPaymentConfirmedAsync(order);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await tx.RollbackAsync();
+                return (false, "Terjadi bentrok pembaruan stok saat konfirmasi pembayaran. Silakan ulangi.");
             }
 
             return (true, $"Pembayaran faktur {order.InvoiceNumber} terverifikasi LUNAS. Status: {order.OrderStatus.ToIndonesianLabel()}.");

@@ -49,7 +49,13 @@ public class DetailsModel : PageModel
 
     public async Task<IActionResult> OnPostAddToCartAsync(int id, int variantId, int quantity)
     {
-        var result = await _cart.AddToCartAsync(variantId, Math.Max(1, quantity));
+        if (quantity <= 0)
+        {
+            TempData["ToastError"] = "Jumlah pasang minimal 1.";
+            return RedirectToPage(new { id, SimulateB2B });
+        }
+
+        var result = await _cart.AddToCartAsync(variantId, quantity);
         if (result.Success)
         {
             TempData["ToastSuccess"] = result.Message;

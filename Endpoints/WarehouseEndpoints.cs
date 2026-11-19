@@ -28,14 +28,23 @@ public static class WarehouseEndpoints
                 if (!isAdmin)
                 {
                     var warehouseOpts = http.RequestServices.GetRequiredService<IOptions<WarehouseOptions>>().Value;
-                    var providedKey = http.Request.Headers["X-Factory-Api-Key"].ToString();
+                    var env = http.RequestServices.GetRequiredService<IWebHostEnvironment>();
+                    var configuredKey = warehouseOpts.ApiKey?.Trim() ?? string.Empty;
+                    var providedKey = http.Request.Headers["X-Factory-Api-Key"].ToString().Trim();
+
+                    bool keyIsValidConfigured =
+                        !string.IsNullOrWhiteSpace(configuredKey) &&
+                        !configuredKey.Contains("PLACEHOLDER", StringComparison.OrdinalIgnoreCase) &&
+                        !configuredKey.Contains("CHANGE_ME", StringComparison.OrdinalIgnoreCase) &&
+                        (env.IsDevelopment() || !string.Equals(configuredKey, "PABRIK-GUDANG-1978", StringComparison.Ordinal));
 
                     bool validKey = false;
-                    if (!string.IsNullOrWhiteSpace(warehouseOpts.ApiKey) && !string.IsNullOrEmpty(providedKey))
+                    if (keyIsValidConfigured && !string.IsNullOrEmpty(providedKey))
                     {
-                        byte[] expectedDigest = SHA256.HashData(Encoding.UTF8.GetBytes(warehouseOpts.ApiKey));
-                        byte[] actualDigest = SHA256.HashData(Encoding.UTF8.GetBytes(providedKey));
-                        validKey = CryptographicOperations.FixedTimeEquals(actualDigest, expectedDigest);
+                        byte[] expectedBytes = Encoding.UTF8.GetBytes(configuredKey);
+                        byte[] providedBytes = Encoding.UTF8.GetBytes(providedKey);
+                        validKey = expectedBytes.Length == providedBytes.Length &&
+                                   CryptographicOperations.FixedTimeEquals(providedBytes, expectedBytes);
                     }
 
                     if (!validKey)

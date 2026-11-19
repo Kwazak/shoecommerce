@@ -196,6 +196,16 @@ public sealed class CartService
 
     public async Task<CartActionResult> AddBatchItemsAsync(int productId, Dictionary<int, int> variantQuantities)
     {
+        if (variantQuantities.Values.Any(q => q < 0))
+        {
+            return new CartActionResult
+            {
+                Success = false,
+                Message = "Jumlah pesanan tidak boleh bernilai negatif.",
+                Summary = await GetCartSummaryAsync()
+            };
+        }
+
         var requested = variantQuantities
             .Where(kv => kv.Value > 0)
             .ToDictionary(kv => kv.Key, kv => kv.Value);
@@ -289,6 +299,16 @@ public sealed class CartService
 
     public async Task<CartActionResult> AddStarterBundleAsync(int bundleId)
     {
+        if (bundleId <= 0)
+        {
+            return new CartActionResult
+            {
+                Success = false,
+                Message = "ID Paket Usaha tidak valid.",
+                Summary = await GetCartSummaryAsync()
+            };
+        }
+
         var bundle = await _db.StarterBundles
             .AsNoTracking()
             .FirstOrDefaultAsync(b => b.Id == bundleId && b.IsActive);
@@ -376,12 +396,10 @@ public sealed class CartService
 
         if (quantity <= 0)
         {
-            entries.Remove(existing);
-            WriteCookieEntries(entries);
             return new CartActionResult
             {
-                Success = true,
-                Message = "Item dihapus dari Laci Kasir.",
+                Success = false,
+                Message = "Jumlah pasang minimal 1. Gunakan tombol Hapus untuk mengeluarkan barang.",
                 Summary = await GetCartSummaryAsync()
             };
         }

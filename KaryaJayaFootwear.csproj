@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>KaryaJayaFootwear</RootNamespace>
+    <DefaultItemExcludes>$(DefaultItemExcludes);KaryaJayaFootwear.SecurityTests\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

@@ -58,6 +58,11 @@ public class InvoiceModel : PageModel
 
     public async Task<IActionResult> OnPostSimulateCallbackAsync(int id, string? token)
     {
+        if (!_env.IsDevelopment())
+        {
+            return StatusCode(StatusCodes.Status403Forbidden);
+        }
+
         var order = await _fulfillment.GetOrderForInvoiceAsync(id, User, token);
         if (order is null)
         {

@@ -54,7 +54,7 @@ public static class ApiEndpoints
         app.MapPost("/api/cart/update", async ([FromBody] UpdateCartBody body, [FromServices] CartService cartService) =>
         {
             var res = await cartService.UpdateQuantityAsync(body.VariantId, body.Quantity);
-            return Results.Ok(res);
+            return res.Success ? Results.Ok(res) : Results.BadRequest(res);
         });
 
         app.MapPost("/api/cart/remove", async ([FromBody] UpdateCartBody body, [FromServices] CartService cartService) =>

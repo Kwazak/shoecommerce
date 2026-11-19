@@ -173,7 +173,11 @@
       btn.addEventListener('click', () => {
         const vid = Number(btn.getAttribute('data-cart-dec'));
         const qty = Number(btn.getAttribute('data-qty'));
-        updateCartItem(vid, qty - 1);
+        if (qty <= 1) {
+          removeCartItem(vid);
+        } else {
+          updateCartItem(vid, qty - 1);
+        }
       });
     });
 
